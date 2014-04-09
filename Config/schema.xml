@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database defaultIdMethod="native" name="thelia" namespace="Payzen\Model">
+    <table name="payzen_config">
+        <column name="name" required="true" size="128" type="VARCHAR" primaryKey="true"/>
+        <column name="value" type="LONGVARCHAR" />
+    </table>
+</database>

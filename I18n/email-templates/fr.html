@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="fr">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Confirmation du paiement de votre commande sur {config key="url_site"} </title>
+    <style type="text/css">
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 100%;
+            text-align: center;
+        }
+
+        #liencompte {
+            margin: 15px 0;
+            text-align: center;
+            font-size: 10pt;
+        }
+
+        #wrapper {
+            width: 480pt;
+            margin: 0 auto;
+        }
+
+        #entete {
+            padding-bottom: 20px;
+            margin-bottom: 10px;
+            border-bottom: 1px dotted #000;
+        }
+
+        #logotexte {
+            float: left;
+            width: 180pt;
+            height: 75pt;
+            border: 1pt solid #000;
+            font-size: 18pt;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+<div id="wrapper">
+    <div id="entete">
+        <h1 id="logotexte">{config key="store_name"}</h1>
+
+        <h2 id="info">Confirmation du paiement de votre commande</h2>
+
+        <h3 id="commande">N&deg; {$order_ref}</h3>
+    </div>
+
+    <p id="liencompte">
+        Le suivi de votre commande est disponible dans la rubrique mon compte sur
+        <a href="{config key="url_site"}">{config key="url_site"}</a>
+    </p>
+
+    <p>Merci pour votre achat !</p>
+
+    <p>L'équipe {config key="store_name"}</p>
+</div>
+</body>
+</html>

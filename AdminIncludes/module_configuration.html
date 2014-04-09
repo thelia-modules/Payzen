@@ -1,0 +1,74 @@
+<div class="row">
+    <div class="col-md-12 general-block-decorator">
+        <div class="row">
+
+            <div class="col-md-12 title title-without-tabs">
+                {intl l="Payzen Configuration"}
+            </div>
+        </div>
+
+        <div class="form-container">
+            <div class="row">
+                <div class="col-md-12">
+                {form name="payzen.configuration.form"}
+
+                <form action="{url path="/admin/module/payzen/configure"}" method="post">
+                    {form_hidden_fields form=$form}
+
+                    {include file = "includes/inner-form-toolbar.html"
+                        hide_flags = true
+                        page_url   = "{url path='/admin/module/Payzen'}"
+                        close_url  = "{url path='/admin/modules'}"
+                    }
+
+                    {if $form_error}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="alert alert-danger">{$form_error_message}</div>
+                            </div>
+                        </div>
+                    {/if}
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="title title-without-tabs">{intl l="Access to Payzen Platform"}</p>
+
+                            {include file="payzen/form-field-template.html" field_name="site_id"}
+                            {include file="payzen/form-field-template.html" field_name="test_certificate"}
+                            {include file="payzen/form-field-template.html" field_name="production_certificate"}
+                            {include file="payzen/form-field-template.html" field_name="platform_url"}
+                            {include file="payzen/form-field-template.html" field_name="mode"}
+                            {include file="payzen/form-field-template.html" field_name="allowed_ip_list"}
+                        </div>
+
+                        <div class="col-md-4">
+                            <p class="title title-without-tabs">{intl l="Payment configuration"}</p>
+
+                            {include file="payzen/form-field-template.html" field_name="banking_delay"}
+                            {include file="payzen/form-field-template.html" field_name="validation_mode"}
+                            {include file="payzen/form-field-template.html" field_name="allowed_cards"}
+
+                            {include file="payzen/form-field-template.html" field_name="minimum_amount"}
+                            {include file="payzen/form-field-template.html" field_name="maximum_amount"}
+                        </div>
+
+                        <div class="col-md-4">
+                            <p class="title title-without-tabs">{intl l="Payment page"}</p>
+
+                            {include file="payzen/form-field-template.html" field_name="default_language"}
+                            {include file="payzen/form-field-template.html" field_name="available_languages"}
+
+                            {include file="payzen/form-field-template.html" field_name="redirect_enabled"}
+                            {include file="payzen/form-field-template.html" field_name="success_timeout"}
+                            {include file="payzen/form-field-template.html" field_name="success_message"}
+                            {include file="payzen/form-field-template.html" field_name="failure_timeout"}
+                            {include file="payzen/form-field-template.html" field_name="failure_message"}
+
+                        </div>
+                    </div>
+                </form>
+                {/form}
+            </div>
+        </div>
+    </div>
+</div>

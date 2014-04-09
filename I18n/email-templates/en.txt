@@ -1,0 +1,9 @@
+Dear customer,
+
+This is a confirmation of the payment of your order {$order_ref} via Payzen on our shop.
+
+Your invoice is now available in your customer account at {config key="url_site"}
+
+Thank you again for your purchase.
+
+The {config key="store_name"} team.
