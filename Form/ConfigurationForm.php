@@ -176,7 +176,7 @@ class ConfigurationForm extends BaseForm
                     'choices' => $available_languages,
                     'multiple' => true,
                     'label' => $T->trans('Available languages'),
-                    'data' => explode(',', PayzenConfigQuery::read('available_languages', '')),
+                    'data' => explode(';', PayzenConfigQuery::read('available_languages', '')),
                     'label_attr' => array(
                         'for' => 'available_languages',
                         'help' => $T->trans(
@@ -231,7 +231,7 @@ class ConfigurationForm extends BaseForm
                     'choices' => $available_cards,
                     'multiple' => true,
                     'label' => $T->trans('Available payment cards'),
-                    'data' => explode(',', PayzenConfigQuery::read('allowed_cards', '')),
+                    'data' => explode(';', PayzenConfigQuery::read('allowed_cards', '')),
                     'label_attr' => array(
                         'for' => 'allowed_cards',
                         'help' => $T->trans('Select nothing to use gateway configuration.'),
@@ -349,6 +349,23 @@ class ConfigurationForm extends BaseForm
                     'label_attr' => array(
                         'for' => 'maximum_amount',
                         'help' => $T->trans('Maximum order total in the default currency for which this payment method is available. Enter 0 for no maximum')
+                    )
+                )
+            )
+            ->add(
+                'three_ds_minimum_order_amount',
+                'money',
+                array(
+                    'constraints' => array(
+                        new NotBlank(),
+                        new GreaterThanOrEqual(array('value' => 0))
+                    ),
+                    'required' => true,
+                    'label' => $T->trans('3D Secure minimum order amount'),
+                    'data' => PayzenConfigQuery::read('three_ds_minimum_order_amount', '0'),
+                    'label_attr' => array(
+                        'for' => 'three_ds_minimum_order_amount',
+                        'help' => $T->trans('Minimum order total in the default currency to request a 3D Secure authentication')
                     )
                 )
             )

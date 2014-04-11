@@ -51,7 +51,7 @@ class PayzenField {
      * @param string $value
      * @return PayzenField
      */
-    function PayzenField($name, $label, $regex, $required = false, $length = 255) {
+    function __construct($name, $label, $regex, $required = false, $length = 255) {
         $this->name = $name;
         $this->label = $label;
         $this->regex = $regex;

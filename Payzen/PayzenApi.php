@@ -47,7 +47,7 @@ class PayzenApi
      * @var array[string]PayzenField
      * @access private
      */
-    var $requestParameters;
+    var $requestParameters = array();
     /**
      * Certificate to send in TEST mode
      * @var string
@@ -133,7 +133,7 @@ class PayzenApi
      * Constructor.
      * Initialize request fields definitions.
      */
-    function PayzenApi($encoding = "UTF-8")
+    function __construct($encoding = "UTF-8")
     {
         // Initialize encoding
         $this->encoding = in_array(strtoupper($encoding), $this->SUPPORTED_ENCODINGS) ? strtoupper($encoding) : "UTF-8";
@@ -690,6 +690,7 @@ class PayzenApi
     function findCurrencyByAlphaCode($alpha3)
     {
         $list = $this->getSupportedCurrencies();
+
         foreach ($list as $currency) {
             /** @var PayzenCurrency $currency */
             if ($currency->alpha3 == $alpha3) {

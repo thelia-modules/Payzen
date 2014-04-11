@@ -6,7 +6,7 @@ class PayzenCurrency {
     var $num;
     var $decimals;
 
-    function PayzenCurrency($alpha3, $num, $decimals = 2) {
+    function __construct($alpha3, $num, $decimals = 2) {
         $this->alpha3 = $alpha3;
         $this->num = $num;
         $this->decimals = $decimals;

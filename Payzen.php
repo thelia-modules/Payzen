@@ -24,15 +24,25 @@
 namespace Payzen;
 
 use Payzen\Model\Map\PayzenConfigTableMap;
+use Payzen\Model\PayzenConfigQuery;
+use Payzen\Payzen\PayzenCurrency;
+use Payzen\Payzen\PayzenField;
+use Payzen\Payzen\PayzenMultiApi;
 use Propel\Runtime\Connection\ConnectionInterface;
+use Propel\Runtime\Propel;
+use Thelia\Core\HttpFoundation\Response;
+use Thelia\Core\Translation\Translator;
 use Thelia\Install\Database;
+use Thelia\Model\Base\CountryQuery;
+use Thelia\Model\ConfigQuery;
+use Thelia\Model\LangQuery;
 use Thelia\Model\Message;
 use Thelia\Model\MessageQuery;
+use Thelia\Model\ModuleImageQuery;
 use Thelia\Model\Order;
-use Thelia\Module\BaseModule;
-use Thelia\Module\PaymentModuleInterface;
+use Thelia\Module\AbstractPaymentModule;
 
-class Payzen extends BaseModule implements PaymentModuleInterface
+class Payzen extends AbstractPaymentModule
 {
     /**
      * The confirmation message identifier
@@ -73,6 +83,13 @@ class Payzen extends BaseModule implements PaymentModuleInterface
                 ->save()
             ;
         }
+
+        /* Deploy the module's image */
+        $module = $this->getModuleModel();
+
+        if (ModuleImageQuery::create()->filterByModule($module)->count() == 0) {
+            $this->deployImageFolder($module, sprintf('%s/images', __DIR__), $con);
+        }
     }
 
     public function destroy(ConnectionInterface $con = null, $deleteModuleData = false)
@@ -88,33 +105,215 @@ class Payzen extends BaseModule implements PaymentModuleInterface
      *
      *  Method used by payment gateway.
      *
-     *  If this method return a \Thelia\Core\HttpFoundation\Response instance, this response is send to the
+     *  If this method return a \Thelia\Core\HttpFoundation\Response instance, this response is sent to the
      *  browser.
      *
      *  In many cases, it's necessary to send a form to the payment gateway. On your response you can return this form already
      *  completed, ready to be sent
      *
-     * @param  \Thelia\Model\Order $order processed order
-     * @return null|\Thelia\Core\HttpFoundation\Response
+     * @param  Order $order processed order
+     * @return Response the HTTP response
      */
     public function pay(Order $order)
     {
-        // TODO: Implement pay() method.
+        $payzen_params = $this->getPayzenParameters($order, 'SINGLE');
+
+        // Convert files into standard var => value array
+        $html_params = array();
+
+        /** @var PayzenField $field */
+        foreach($payzen_params as $name => $field)
+            $html_params[$name] = $field->getValue();
+
+        return $this->generateGatewayFormResponse($order, PayzenConfigQuery::read('platform_url'), $html_params);
     }
 
     /**
-     *
-     * This method is call on Payment loop.
-     *
-     * If you return true, the payment method will de display
-     * If you return false, the payment method will not be display
-     *
-     * @return boolean
+     * @return boolean true to allow usage of this payment module, false otherwise.
      */
     public function isValidPayment()
     {
-        // If we're in test mode, do not display Payzen on the front office, except for allowed IP addresses
+        $valid = false;
 
-        // TODO: Implement isValidPayment() method.
+        $mode = PayzenConfigQuery::read('mode', false);
+
+        // If we're in test mode, do not display Payzen on the front office, except for allowed IP addresses.
+        if ('TEST' == $mode) {
+
+            $allowed_client_ips = explode(',', PayzenConfigQuery::read('allowed_ip_list', ''));
+
+            $valid = in_array($this->getRequest()->getClientIp(), $allowed_client_ips);
+        }
+        else if ('PROD' == $mode) {
+
+            $valid = true;
+        }
+
+        if ($valid) {
+            // Check if total order amount is in the module's limits
+            $order_total = $this->getCurrentOrderTotalAmount();
+
+            $min_amount = PayzenConfigQuery::read('minimum_amount', 0);
+            $max_amount = PayzenConfigQuery::read('maximum_amount', 0);
+
+            $valid = $order_total > 0 && ($min_amount <= 0 || $order_total >= $min_amount) && ($max_amount <= 0 || $order_total <= $max_amount);
+        }
+
+        return $valid;
+    }
+
+    /**
+     * Returns the vads transaction id, that should be unique during the current day,
+     * and should be 6 numeric characters between 000000 and 899999
+     *
+     * @return string the transaction ID
+     * @throws \Exception an exception if something goes wrong.
+     */
+    protected function getTransactionId()
+    {
+        $con = Propel::getWriteConnection(PayzenConfigTableMap::DATABASE_NAME);
+
+        $con->beginTransaction();
+
+        try {
+
+            $trans_id = PayzenConfigQuery::read('next_transaction_id', '0');
+
+            $next_trans_id = $trans_id++;
+
+            if ($next_trans_id > 899999) {
+                $next_trans_id = 0;
+            }
+
+            PayzenConfigQuery::set('next_transaction_id', $next_trans_id);
+
+            return sprintf("%06d",$trans_id);
+        }
+        catch (\Exception $ex) {
+
+            $con->rollback();
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * Create the form parameter list for the given order
+     *
+     * @param Order $order
+     * @param string $payment_config single or multiple payment - see vads_payment_config parameter description
+     *
+     * @throws \InvalidArgumentException if an unsupported currency is used in order
+     * @return array the payzen form parameters
+     */
+    protected function getPayzenParameters(Order $order, $payment_config = 'SINGLE')
+    {
+        $payzenApi = new PayzenMultiApi();
+
+        // Total order amount
+        $amount = $order->getTotalAmount();
+
+        /** @var  PayzenCurrency $currency */
+
+        // Currency conversion to numeric ISO 1427 code
+        if (null === $currency = $payzenApi->findCurrencyByAlphaCode($order->getCurrency()->getCode())) {
+            throw new \InvalidArgumentException(Translator::getInstance()->trans(
+                "Unsupported order currency: '%code'",
+                array('%code' => $order->getCurrency()->getCode())
+            ));
+        }
+
+        $customer = $order->getCustomer();
+
+        // Get customer lang code and locale
+        if (null !== $langObj = LangQuery::create()->findPk($customer->getLang())) {
+            $customer_lang = $langObj->getCode();
+            $locale        = $langObj->getLocale();
+        }
+        else {
+            $customer_lang = PayzenConfigQuery::read('default_language');
+            $locale        = LangQuery::create()->findOneByByDefault(true)->getLocale();
+        }
+
+        $address = $customer->getDefaultAddress();
+
+        // Customer phone (first non empty)
+        $phone = $address->getPhone();
+        if (empty($phone)) $phone = $address->getCellphone();
+
+        // Transaction ID
+        $transaction_id = $this->getTransactionId();
+
+        $order->setTransactionRef($transaction_id)->save();
+
+        $payzen_params = array(
+
+            // Static configuration variables
+
+            'vads_version'        => 'V2',
+            'vads_contrib'        => 'Thelia version ' . ConfigQuery::read('thelia_version'),
+            'vads_action_mode'    => 'INTERACTIVE',
+            'vads_payment_config' => $payment_config,
+            'vads_page_action'    => 'PAYMENT',
+            'vads_return_mode'    => 'POST',
+            'vads_shop_name'      => ConfigQuery::read("store_name", ''),
+
+            'vads_url_success'    => $this->getPayementSuccessPageUrl($order->getId()),
+            'vads_url_refused'    => $this->getPayementFailurePageUrl($order->getId(), Translator::getInstance()->trans("Your payement has been refused")),
+            'vads_url_referral'   => $this->getPayementFailurePageUrl($order->getId(), Translator::getInstance()->trans("Authorization request was rejected")),
+            'vads_url_cancel'     => $this->getPayementFailurePageUrl($order->getId(), Translator::getInstance()->trans("You canceled the payement")),
+            'vads_url_error'      => $this->getPayementFailurePageUrl($order->getId(), Translator::getInstance()->trans("An internal error occured")),
+
+            // User-defined configuration variables
+
+            'vads_site_id'             => PayzenConfigQuery::read('site_id'),
+            'vads_key_test'            => PayzenConfigQuery::read('test_certificate'),
+            'vads_key_prod'            => PayzenConfigQuery::read('production_certificate'),
+            'vads_ctx_mode'            => PayzenConfigQuery::read('mode'),
+            'vads_platform_url'        => PayzenConfigQuery::read('platform_url'),
+            'vads_default_language'    => PayzenConfigQuery::read('default_language'),
+            'vads_available_languages' => PayzenConfigQuery::read('available_languages'),
+
+            'vads_capture_delay'       => PayzenConfigQuery::read('banking_delay'),
+            'vads_validation_mode'     => PayzenConfigQuery::read('validation_mode'),
+            'vads_payment_cards'       => PayzenConfigQuery::read('allowed_cards'),
+
+            'payzen_redirect_enabled'        => PayzenConfigQuery::read('redirect_enabled'),
+            'vads_redirect_success_timeout'  => PayzenConfigQuery::read('success_timeout'),
+            'vads_redirect_success_message'  => PayzenConfigQuery::read('success_message'),
+            'vads_redirect_error_timeout'    => PayzenConfigQuery::read('failure_timeout'),
+            'vads_redirect_error_message'    => PayzenConfigQuery::read('failure_message'),
+
+            // Order related configuration variables
+
+            'vads_language'    => $customer_lang,
+            'vads_order_id'    => $order->getId(), // Do not change this, as the callback use it to find the order
+            'vads_currency'    => $currency->num,
+            'vads_amount'      => $currency->convertAmountToInteger($amount),
+            'vads_trans_id'    => $transaction_id,
+            'vads_trans_date'  => gmdate("YmdHis"),
+
+            // Activate 3D Secure ?
+            'vads_threeds_mpi' => $amount >= PayzenConfigQuery::read('three_ds_minimum_order_amount', 0) ? 2 : 0,
+
+            // Customer information
+
+            'vads_cust_email'      => $customer->getEmail(),
+            'vads_cust_id'         => $customer->getId(),
+            'vads_cust_title'      => $customer->getCustomerTitle()->setLocale($locale)->getLong(),
+            'vads_cust_last_name'  => $customer->getLastname(),
+            'vads_cust_first_name' => $customer->getFirstname(),
+            'vads_cust_address'    => trim($address->getAddress1() . ' ' . $address->getAddress2() . ' ' . $address->getAddress3()),
+            'vads_cust_city'       => $address->getCity(),
+            'vads_cust_zip'        => $address->getZipcode(),
+            'vads_cust_country'    => CountryQuery::create()->findPk($address->getCountryId())->getIsoalpha2(),
+            'vads_cust_phone'      => $phone,
+        );
+
+        foreach ($payzen_params as $payzen_parameter_name => $value) {
+            $payzenApi->set($payzen_parameter_name, $value);
+        }
+
+        return $payzenApi->getRequestFields();
     }
 }

@@ -210,7 +210,7 @@ class PayzenResponse {
      * @param string $key_prod
      * @param string $encoding
      */
-    function PayzenResponse($parameters = null, $ctx_mode = null, $key_test = null, $key_prod = null) {
+    function __construct($parameters = null, $ctx_mode = null, $key_test = null, $key_prod = null) {
 
         $this->api = new PayzenApi(); // Use default API encoding (UTF-8) since the payment platform returns UTF-8 data
 

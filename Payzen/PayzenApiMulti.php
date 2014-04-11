@@ -11,10 +11,10 @@ class PayzenMultiApi extends PayzenApi
     /**
      * Constructor.
      */
-    function PayzenMultiApi($encoding = "UTF-8")
+    function __construct($encoding = "UTF-8")
     {
         // call parent class constructor
-        parent::PayzenApi($encoding);
+        parent::__construct($encoding);
     }
 
     /**

@@ -2,12 +2,12 @@
 <module>
     <fullnamespace>Payzen\Payzen</fullnamespace>
     <descriptive locale="en_US">
-        <title>Payzen</title>
+        <title>Pay with Payzen</title>
     </descriptive>
     <descriptive locale="fr_FR">
-        <title>Payzen</title>
+        <title>Payer avec Payzen</title>
     </descriptive>
-    <version>0.0.1</version>
+    <version>0.6.0</version>
     <author>
         <name>Franck Allimant</name>
         <email>franck@cqfdev.fr</email>

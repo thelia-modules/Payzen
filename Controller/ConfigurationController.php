@@ -65,7 +65,7 @@ class ConfigurationController extends BaseAdminController
 
             foreach($data as $name => $value) {
                 if (is_array($value)) {
-                    $value = implode(',', $value);
+                    $value = implode(';', $value);
                 }
 
                 PayzenConfigQuery::set($name, $value);
