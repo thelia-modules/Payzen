@@ -50,10 +50,10 @@ class PaymentController extends BasePaymentModuleController
             PayzenConfigQuery::read('production_certificate')
         );
 
-        $this->getLog()->addInfo($this->getTranslator()->trans("Payzen platform request received."));
-
         $request = $this->getRequest();
         $order_id = intval($request->get('vads_order_id'));
+
+        $this->getLog()->addInfo($this->getTranslator()->trans("Payzen platform request received for order ID %id.", array('%id' => $order_id)));
 
         if (null !== $order = $this->getOrder($order_id)) {
 
@@ -67,11 +67,11 @@ class PaymentController extends BasePaymentModuleController
                     // Payment was accepted.
 
                     if ($order->isPaid()) {
-                        $this->getLog()->addInfo($this->getTranslator()->trans("Order is already paid."));
+                        $this->getLog()->addInfo($this->getTranslator()->trans("Order ID %id is already paid.", array('%id' => $order_id)));
 
                         $gateway_response_code = 'payment_ok_already_done';
                     } else {
-                        $this->getLog()->addInfo($this->getTranslator()->trans("Order payment was successful."));
+                        $this->getLog()->addInfo($this->getTranslator()->trans("Order ID %id payment was successful.", array('%id' => $order_id)));
 
                         // Payment OK !
                         $this->confirmPayment($order_id);
@@ -88,7 +88,7 @@ class PaymentController extends BasePaymentModuleController
 
                         // Payment was not accepted.
 
-                        $this->getLog()->addError($this->getTranslator()->trans("Order payment failed."));
+                        $this->getLog()->addError($this->getTranslator()->trans("Order ID %id payment failed.", array('%id' => $order_id)));
 
                         if ($order->isPaid()) {
                             $gateway_response_code = 'payment_ko_already_done';
@@ -106,7 +106,7 @@ class PaymentController extends BasePaymentModuleController
             $gateway_response_code = 'order_not_found';
         }
 
-        $this->getLog()->info($this->getTranslator()->trans("Payzen platform request processing teminated."));
+        $this->getLog()->info($this->getTranslator()->trans("Payzen platform request for order ID %id processing teminated.", array('%id' => $order_id)));
 
         return Response::create($payzenResponse->getOutputForGateway($gateway_response_code));
     }

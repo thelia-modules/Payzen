@@ -140,9 +140,18 @@ class Payzen extends AbstractPaymentModule
         // If we're in test mode, do not display Payzen on the front office, except for allowed IP addresses.
         if ('TEST' == $mode) {
 
-            $allowed_client_ips = explode(',', PayzenConfigQuery::read('allowed_ip_list', ''));
+            $raw_ips = explode("\n", PayzenConfigQuery::read('allowed_ip_list', ''));
 
-            $valid = in_array($this->getRequest()->getClientIp(), $allowed_client_ips);
+            $allowed_client_ips = array();
+
+            foreach($raw_ips as $ip) {
+                $allowed_client_ips[] = trim($ip);
+            }
+
+            $client_ip = $this->getRequest()->getClientIp();
+
+            $valid = in_array($client_ip, $allowed_client_ips);
+
         }
         else if ('PROD' == $mode) {
 
@@ -177,15 +186,17 @@ class Payzen extends AbstractPaymentModule
 
         try {
 
-            $trans_id = PayzenConfigQuery::read('next_transaction_id', '0');
+            $trans_id = PayzenConfigQuery::read('next_transaction_id', 1);
 
-            $next_trans_id = $trans_id++;
+            $next_trans_id = 1 + $trans_id;
 
             if ($next_trans_id > 899999) {
                 $next_trans_id = 0;
             }
 
             PayzenConfigQuery::set('next_transaction_id', $next_trans_id);
+
+            $con->commit();
 
             return sprintf("%06d",$trans_id);
         }
@@ -278,7 +289,7 @@ class Payzen extends AbstractPaymentModule
             'vads_validation_mode'     => PayzenConfigQuery::read('validation_mode'),
             'vads_payment_cards'       => PayzenConfigQuery::read('allowed_cards'),
 
-            'payzen_redirect_enabled'        => PayzenConfigQuery::read('redirect_enabled'),
+            'vads_redirect_enabled'          => PayzenConfigQuery::read('redirect_enabled'),
             'vads_redirect_success_timeout'  => PayzenConfigQuery::read('success_timeout'),
             'vads_redirect_success_message'  => PayzenConfigQuery::read('success_message'),
             'vads_redirect_error_timeout'    => PayzenConfigQuery::read('failure_timeout'),

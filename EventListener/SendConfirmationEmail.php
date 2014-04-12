@@ -7,6 +7,7 @@ use Thelia\Action\BaseAction;
 use Thelia\Core\Event\Order\OrderEvent;
 use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\Template\ParserInterface;
+use Thelia\Log\Tlog;
 use Thelia\Mailer\MailerFactory;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\MessageQuery;
@@ -50,6 +51,8 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
 
             $contact_email = ConfigQuery::read('store_email', false);
 
+            Tlog::getInstance()->debug("Sending confirmation email from store contact e-mail $contact_email");
+
             if ($contact_email) {
                 $message = MessageQuery::create()
                     ->filterByName(Payzen::CONFIRMATION_MESSAGE_NAME)
@@ -77,7 +80,12 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
                 $message->buildMessage($this->parser, $instance);
 
                 $this->getMailer()->send($instance);
+
+                Tlog::getInstance()->debug("Confirmation email sent to customer ".$customer->getEmail());
             }
+        }
+        else {
+            Tlog::getInstance()->debug("No confirmation email sent (order not paid, or not the proper payement module.");
         }
     }
 

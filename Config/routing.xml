@@ -6,8 +6,8 @@
         <default key="_controller">Payzen\Controller\ConfigurationController::configure</default>
     </route>
 
-    <route id="payzen.payment.confirmation" path="/payzen/callback" methods="post">
-        <default key="_controller">Payzen\Controller\PayementController::processPayzenRequest</default>
+    <route id="payzen.payment.confirmation" path="payzen/callback" methods="post">
+        <default key="_controller">Payzen\Controller\PaymentController::processPayzenRequest</default>
     </route>
 
 </routes>
