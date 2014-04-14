@@ -42,6 +42,11 @@ use Thelia\Model\ModuleImageQuery;
 use Thelia\Model\Order;
 use Thelia\Module\AbstractPaymentModule;
 
+/**
+ * Payzen payment module
+ *
+ * @author Franck Allimant <franck@cqfdev.fr>
+ */
 class Payzen extends AbstractPaymentModule
 {
     /**
@@ -52,13 +57,13 @@ class Payzen extends AbstractPaymentModule
     public function postActivation(ConnectionInterface $con = null)
     {
         // Once activated, create the module schema in the Thelia database.
-        $database = new Database($con->getWrappedConnection());
+        $database = new Database($con);
 
         $database->insertSql(null, array(
                 __DIR__ . DS . 'Config'.DS.'thelia.sql' // The module schema
         ));
 
-        // Create payment confirmation message, if not already defined
+        // Create payment confirmation message from templates, if not already defined
         $email_templates_dir = __DIR__.DS.'I18n'.DS.'email-templates'.DS;
 
         if (null === MessageQuery::create()->findOneByName(self::CONFIRMATION_MESSAGE_NAME)) {
@@ -96,11 +101,15 @@ class Payzen extends AbstractPaymentModule
     {
         // Delete config table and messages if required
         if ($deleteModuleData) {
-            $con->exec(sprintf("DROP TABLE %s", PayzenConfigTableMap::TABLE_NAME));
+
+            $database = new Database($con);
+
+            $database->execute("DROP TABLE ?", PayzenConfigTableMap::TABLE_NAME);
 
             MessageQuery::create()->findOneByName(self::CONFIRMATION_MESSAGE_NAME)->delete();
         }
     }
+
     /**
      *
      *  Method used by payment gateway.
@@ -116,7 +125,19 @@ class Payzen extends AbstractPaymentModule
      */
     public function pay(Order $order)
     {
-        $payzen_params = $this->getPayzenParameters($order, 'SINGLE');
+        return $this->doPay($order, 'SINGLE');
+    }
+
+    /**
+     * Payment gateway invocation
+     *
+     * @param  Order $order processed order
+     * @param string the payment mode, either 'SINGLE' ou 'MULTI'
+     * @return Response the HTTP response
+     */
+    protected function doPay(Order $order, $payment_mode)
+    {
+        $payzen_params = $this->getPayzenParameters($order, $payment_mode);
 
         // Convert files into standard var => value array
         $html_params = array();
@@ -160,15 +181,26 @@ class Payzen extends AbstractPaymentModule
 
         if ($valid) {
             // Check if total order amount is in the module's limits
-            $order_total = $this->getCurrentOrderTotalAmount();
-
-            $min_amount = PayzenConfigQuery::read('minimum_amount', 0);
-            $max_amount = PayzenConfigQuery::read('maximum_amount', 0);
-
-            $valid = $order_total > 0 && ($min_amount <= 0 || $order_total >= $min_amount) && ($max_amount <= 0 || $order_total <= $max_amount);
+            $valid = $this->checkMinMaxAmount();
         }
 
         return $valid;
+    }
+
+    /**
+     * Check if total order amount is in the module's limits
+     *
+     * @return bool true if the current order total is within the min and max limits
+     */
+    protected function checkMinMaxAmount() {
+
+        // Check if total order amount is in the module's limits
+        $order_total = $this->getCurrentOrderTotalAmount();
+
+        $min_amount = PayzenConfigQuery::read('minimum_amount', 0);
+        $max_amount = PayzenConfigQuery::read('maximum_amount', 0);
+
+        return $order_total > 0 && ($min_amount <= 0 || $order_total >= $min_amount) && ($max_amount <= 0 || $order_total <= $max_amount);
     }
 
     /**
@@ -186,7 +218,7 @@ class Payzen extends AbstractPaymentModule
 
         try {
 
-            $trans_id = PayzenConfigQuery::read('next_transaction_id', 1);
+            $trans_id = intval(PayzenConfigQuery::read('next_transaction_id', 1));
 
             $next_trans_id = 1 + $trans_id;
 
@@ -209,6 +241,32 @@ class Payzen extends AbstractPaymentModule
     }
 
     /**
+     * Calculate the value of the vads_payment_config parameter.
+     *
+     * @param string $payment_config
+     * @param float $orderAmount
+     * @param PayzenCurrency $currency
+     * @return string the value for vads_payment_config parameter
+     */
+    protected function getPaymentConfigValue($payment_config, $orderAmount, $currency) {
+
+        if ('MULTI' == $payment_config) {
+
+            $first    = PayzenConfigQuery::read('multi_first_payment', 0);
+            $count    = PayzenConfigQuery::read('multi_number_of_payments', 4);
+            $interval = PayzenConfigQuery::read('multi_payments_interval', 30);
+
+            if ($first == 0) {
+                $first = $currency->convertAmountToInteger($orderAmount / $count);
+            }
+
+            return sprintf("MULTI:first=%d;count=%d;period=%d", $first, $count, $interval);
+        }
+
+        return $payment_config;
+    }
+
+    /**
      * Create the form parameter list for the given order
      *
      * @param Order $order
@@ -217,7 +275,7 @@ class Payzen extends AbstractPaymentModule
      * @throws \InvalidArgumentException if an unsupported currency is used in order
      * @return array the payzen form parameters
      */
-    protected function getPayzenParameters(Order $order, $payment_config = 'SINGLE')
+    protected function getPayzenParameters(Order $order, $payment_config)
     {
         $payzenApi = new PayzenMultiApi();
 
@@ -264,7 +322,7 @@ class Payzen extends AbstractPaymentModule
             'vads_version'        => 'V2',
             'vads_contrib'        => 'Thelia version ' . ConfigQuery::read('thelia_version'),
             'vads_action_mode'    => 'INTERACTIVE',
-            'vads_payment_config' => $payment_config,
+            'vads_payment_config' => $this->getPaymentConfigValue($payment_config, $amount, $currency),
             'vads_page_action'    => 'PAYMENT',
             'vads_return_mode'    => 'POST',
             'vads_shop_name'      => ConfigQuery::read("store_name", ''),

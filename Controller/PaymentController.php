@@ -28,6 +28,11 @@ use Payzen\Payzen\PayzenResponse;
 use Thelia\Core\HttpFoundation\Response;
 use Thelia\Module\BasePaymentModuleController;
 
+/**
+ * Payzen payment module
+ *
+ * @author Franck Allimant <franck@cqfdev.fr>
+ */
 class PaymentController extends BasePaymentModuleController
 {
     protected function getModuleCode()

@@ -17,15 +17,6 @@
 
 ----------
 
-French
-
-### Pré-requis
-
-Pour que vos commandes passent automatiquement au statut payé, vous devez renseigner une URL de retour dans votre outils de gestion de caisse Payzen.
-
-Cette adresse est formée de la manière suivante: http://www.votresite.com/payzen/callback
-Par exemple, pour le site thelia.net, l'adresse en mode test et en mode production serait: http://www.thelia.net/payzen/callback
-
 ### Installation
 
 Pour installer le module Payzen, téléchargez l'archive et décompressez-la dans <dossier de thelia>/local/modules
@@ -35,15 +26,19 @@ Pour installer le module Payzen, téléchargez l'archive et décompressez-la dan
 Pour utiliser le module Payzen, allez dans le back-office, onglet Modules, et activez le.
 puis cliquez sur "Configurer" sur la ligne du module, et renseignez les informations requises, que vous trouverez dans votre outil de gestion de caisse Payzen.
 
+### Attention
+
+Pour que vos commandes passent automatiquement au statut payé, vous devez renseigner une URL de retour dans votre outils de gestion de caisse Payzen.
+
+Cette adresse est formée de la manière suivante: http://www.votresite.com/payzen/callback
+Par exemple, pour le site thelia.net, l'adresse en mode test et en mode production serait: http://www.thelia.net/payzen/callback
+
 
 ### Intégration
 
 L'intégration est automatique.
 
 ----------
-
-English
-
 
 ### Prerequisites
 

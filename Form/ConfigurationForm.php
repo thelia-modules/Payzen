@@ -1,40 +1,40 @@
 <?php
 /*************************************************************************************/
-/* */
-/* Thelia */
-/* */
-/* Copyright (c) OpenStudio */
-/* email : info@thelia.net */
-/* web : http://www.thelia.net */
-/* */
-/* This program is free software; you can redistribute it and/or modify */
-/* it under the terms of the GNU General Public License as published by */
-/* the Free Software Foundation; either version 3 of the License */
-/* */
-/* This program is distributed in the hope that it will be useful, */
-/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the */
-/* GNU General Public License for more details. */
-/* */
-/* You should have received a copy of the GNU General Public License */
-/* along with this program. If not, see <http://www.gnu.org/licenses/>. */
-/* */
+/*                                                                                   */
+/*      Thelia	                                                                     */
+/*                                                                                   */
+/*      Copyright (c) OpenStudio                                                     */
+/*      email : info@thelia.net                                                      */
+/*      web : http://www.thelia.net                                                  */
+/*                                                                                   */
+/*      This program is free software; you can redistribute it and/or modify         */
+/*      it under the terms of the GNU General Public License as published by         */
+/*      the Free Software Foundation; either version 3 of the License                */
+/*                                                                                   */
+/*      This program is distributed in the hope that it will be useful,              */
+/*      but WITHOUT ANY WARRANTY; without even the implied warranty of               */
+/*      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                */
+/*      GNU General Public License for more details.                                 */
+/*                                                                                   */
+/*      You should have received a copy of the GNU General Public License            */
+/*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
+/*                                                                                   */
 /*************************************************************************************/
 
 namespace Payzen\Form;
 
 use Payzen\Model\PayzenConfigQuery;
 use Payzen\Payzen\PayzenApi;
-use Symfony\Component\Validator\Constraints\GreaterThan;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
+use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Thelia\Core\Translation\Translator;
 use Thelia\Form\BaseForm;
+use Thelia\Model\Base\ModuleQuery;
+use Thelia\Model\Module;
 
 /**
- * Payzen configuration data
- *
- * @package Payzen\Form
+ * Payzen payment module
  *
  * @author Franck Allimant <franck@cqfdev.fr>
  */
@@ -53,6 +53,11 @@ class ConfigurationForm extends BaseForm
             $available_languages[$code] = $T->trans($label);
         }
 
+        $available_languages_combo = array_merge(
+            array("" => $T->trans("Please select...")),
+            $available_languages
+        );
+
         asort($available_languages);
 
         foreach ($api->getSupportedCardTypes() as $code => $label) {
@@ -60,6 +65,10 @@ class ConfigurationForm extends BaseForm
         }
 
         asort($available_cards);
+
+        // If the Multi plugin is not enabled, all multi_fields are hidden
+        /** @var Module $multiModule */
+        $multiEnabled = (null !== $multiModule = ModuleQuery::create()->findOneByCode('PayzenMulti')) && $multiModule->getActivate() != 0;
 
         $this->formBuilder
             ->add(
@@ -159,7 +168,7 @@ class ConfigurationForm extends BaseForm
                 array(
                     'constraints' => array(new NotBlank()),
                     'required' => true,
-                    'choices' => $available_languages,
+                    'choices' => $available_languages_combo,
                     'label' => $T->trans('Default language'),
                     'data' => PayzenConfigQuery::read('default_language', ''),
                     'label_attr' => array(
@@ -366,6 +375,92 @@ class ConfigurationForm extends BaseForm
                     'label_attr' => array(
                         'for' => 'three_ds_minimum_order_amount',
                         'help' => $T->trans('Minimum order total in the default currency to request a 3D Secure authentication')
+                    )
+                )
+            )
+
+            // -- Multiple payments configuration
+
+            ->add(
+                'multi_minimum_amount',
+                $multiEnabled ? 'money' : 'hidden',
+                array(
+                    'constraints' => array(
+                        new NotBlank(),
+                        new GreaterThanOrEqual(array('value' => 0))
+                    ),
+                    'required' => true,
+                    'label' => $T->trans('Minimum order total for multiple times'),
+                    'data' => PayzenConfigQuery::read('minimum_amount', '0'),
+                    'label_attr' => array(
+                        'for' => 'minimum_amount',
+                        'help' => $T->trans('Minimum order total in the default currency for which multiple times payment method is available. Enter 0 for no minimum')
+                    )
+                )
+            )
+            ->add(
+                'multi_maximum_amount',
+                $multiEnabled ? 'money' : 'hidden',
+                array(
+                    'constraints' => array(
+                        new NotBlank(),
+                        new GreaterThanOrEqual(array('value' => 0))
+                    ),
+                    'required' => true,
+                    'label' => $T->trans('Maximum order total for multiple times'),
+                    'data' => PayzenConfigQuery::read('maximum_amount', '0'),
+                    'label_attr' => array(
+                        'for' => 'maximum_amount',
+                        'help' => $T->trans('Maximum order total in the default currency for which multiple times payment method is available. Enter 0 for no maximum')
+                    )
+                )
+            )
+            ->add(
+                'multi_first_payment',
+                $multiEnabled ? 'number' : 'hidden',
+                array(
+                    'constraints' => array(
+                        new NotBlank(),
+                        new GreaterThanOrEqual(array('value' => 0)),
+                        new LessThanOrEqual(array('value' => 100))
+                    ),
+                    'required' => false,
+                    'label' => $T->trans('Amount of first payment '),
+                    'data' => PayzenConfigQuery::read('multi_first_payment', 25),
+                    'label_attr' => array(
+                        'for' => 'multi_first_payment',
+                        'help' => $T->trans('Amount of the first payment, as a percent of the order total. If zero or empty, all payments will be equals.')
+                    )
+                )
+            )
+            ->add(
+                'multi_number_of_payments',
+                $multiEnabled ? 'number' : 'hidden',
+                array(
+                    'constraints' => array(
+                        new NotBlank(),
+                        new GreaterThanOrEqual(array('value' => 1))
+                    ),
+                    'required' => true,
+                    'label' => $T->trans('Number of payments'),
+                    'data' => PayzenConfigQuery::read('multi_number_of_payments', 4),
+                    'label_attr' => array(
+                        'for' => 'multi_number_of_payments',
+                        'help' => $T->trans('The total number of payments')
+                    )
+                )
+            )
+            ->add(
+                'multi_payments_interval',
+                $multiEnabled ? 'number' : 'hidden',
+                array(
+                    'constraints' => array(new NotBlank()),
+                    'required' => true,
+                    'label' => $T->trans('Days between two payments'),
+                    'data' => PayzenConfigQuery::read('multi_payments_interval', 30),
+                    'label_attr' => array(
+                        'for' => 'multi_payments_interval',
+                        'help' => $T->trans('The interval in days between payments')
                     )
                 )
             )

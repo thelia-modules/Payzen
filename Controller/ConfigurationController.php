@@ -26,16 +26,15 @@ namespace Payzen\Controller;
 use Payzen\Form\ConfigurationForm;
 use Payzen\Model\PayzenConfigQuery;
 use Thelia\Controller\Admin\BaseAdminController;
-use Thelia\Core\HttpFoundation\Response;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Form\Exception\FormValidationException;
 use Thelia\Tools\URL;
 
 /**
- * Class ConfigurePaypal
- * @package Paypal\Controller
- * @author Thelia <info@thelia.net>
+ * Payzen payment module
+ *
+ * @author Franck Allimant <franck@cqfdev.fr>
  */
 class ConfigurationController extends BaseAdminController
 {
@@ -90,7 +89,7 @@ class ConfigurationController extends BaseAdminController
 
             $this->redirect(URL::getInstance()->absoluteUrl($route));
 
-            // An exit is performed after redirect.
+            // An exit is performed after redirect.+
 
         } catch (FormValidationException $ex) {
             // Form cannot be validated. Create the error message using

@@ -1,7 +1,6 @@
 <div class="row">
     <div class="col-md-12 general-block-decorator">
         <div class="row">
-
             <div class="col-md-12 title title-without-tabs">
                 {intl l="Payzen Configuration"}
             </div>
@@ -60,10 +59,30 @@
                             {include file="payzen/form-field-template.html" field_name="validation_mode"}
                             {include file="payzen/form-field-template.html" field_name="allowed_cards"}
 
+                            <p class="title title-without-tabs">{intl l="One time payment"}</p>
+
                             {include file="payzen/form-field-template.html" field_name="minimum_amount"}
                             {include file="payzen/form-field-template.html" field_name="maximum_amount"}
+
                             {include file="payzen/form-field-template.html" field_name="three_ds_minimum_order_amount"}
 
+
+                            <p class="title title-without-tabs">{intl l="Multiple times payment"}</p>
+
+                            {loop name="multi-plugin-enabled" type="module" code="PayzenMulti" active="1"}
+                            {/loop}
+                            {elseloop rel="multi-plugin-enabled"}
+                                <div class="alert alert-info">
+                                    {intl l="Install and activate Payzen multiple times payment module to get configuration options."}
+                                </div>
+                            {/elseloop}
+
+                            {include file="payzen/form-field-template.html" field_name="multi_minimum_amount"}
+                            {include file="payzen/form-field-template.html" field_name="multi_maximum_amount"}
+
+                            {include file="payzen/form-field-template.html" field_name="multi_first_payment"}
+                            {include file="payzen/form-field-template.html" field_name="multi_number_of_payments"}
+                            {include file="payzen/form-field-template.html" field_name="multi_payments_interval"}
                         </div>
 
                         <div class="col-md-4">
