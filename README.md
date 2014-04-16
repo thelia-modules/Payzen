@@ -60,7 +60,7 @@ To install the Payzen module, uncompress the archive in the `<thelia root>/local
 
 ### Usage
 
-To use the Payzen module, you have to first configure it. To do so, go to the "Modules" tab of your Thelia back-office, and activate the Payzen module.
+You have to configure the Payzen module before starting to use it. To do so, go to the "Modules" tab of your Thelia back-office, and activate the Payzen module.
 
 Then click the "Configure" button, and enter the required information, which are available in your Payzen back-office -&gt; Setting -&gt; Shops -&gt; *your shop*
 
@@ -70,17 +70,16 @@ During the test phase, you can defins the IP addresses allowed to use the Payzen
 
 For your order switching automatically to the "paid" status when your customers have successfully completed their payment, you should provide a **return URL** in the Payzen back-office.
 
-The return URL has the following form: `http://www.yourshop.com/payzen/callback`
-For example, the return URL of the `thelia.net` is `http://www.thelia.net/payzen/callback`. 
+The return URL has the following form: `http://www.yourshop.com/payzen/callback`. For example, the return URL of the `thelia.net` is `http://www.thelia.net/payzen/callback`. 
 
 You'll find the exact return URL of you shop in the Thelia back-office, in the Payzen configuration page.
 
 To set up this return URL, go to your Payzen back-office, -&gt; Setting -&gt; Shops -&gt; *your shop*, and paste your return URL in "*Shop's return URL in test mode*" et "*Return URL of the shop in production mode*" fields.
 
-### Front-office intégration
+### Front-office integration
 
 The front-office integration is automatic, as it relies on standard templates.
 
-### Multiple times payements
+### Multiple times payments
 
-Multiple time payements are possible with Payzen. To offer this feature to your customers, install the Thelia **PayzenMulti** module.
+Multiple time payements are possible with Payzen. To offer this feature to your customers, install the Thelia **PayzenMulti** module on your shop.
