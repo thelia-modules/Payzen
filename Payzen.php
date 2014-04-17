@@ -146,7 +146,12 @@ class Payzen extends AbstractPaymentModule
         foreach($payzen_params as $name => $field)
             $html_params[$name] = $field->getValue();
 
-        return $this->generateGatewayFormResponse($order, PayzenConfigQuery::read('platform_url'), $html_params);
+        // Be sure to have a valid platform URL, otherwise give up
+        if (false === $platformUrl = PayzenConfigQuery::read('platform_url', false)) {
+            throw new \InvalidArgumentException(Translator::getInstance()->trans("The platform URL is not defined, please check Payzen module configuration."));
+        }
+
+        return $this->generateGatewayFormResponse($order, $platformUrl, $html_params);
     }
 
     /**
