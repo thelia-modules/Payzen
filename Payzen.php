@@ -49,6 +49,9 @@ use Thelia\Module\AbstractPaymentModule;
  */
 class Payzen extends AbstractPaymentModule
 {
+    /** The module domain for internationalisation */
+    const MODULE_DOMAIN = "payzen";
+
     /**
      * The confirmation message identifier
      */
@@ -148,7 +151,7 @@ class Payzen extends AbstractPaymentModule
 
         // Be sure to have a valid platform URL, otherwise give up
         if (false === $platformUrl = PayzenConfigQuery::read('platform_url', false)) {
-            throw new \InvalidArgumentException(Translator::getInstance()->trans("The platform URL is not defined, please check Payzen module configuration."));
+            throw new \InvalidArgumentException(Translator::getInstance()->trans("The platform URL is not defined, please check Payzen module configuration.", [], Payzen::MODULE_DOMAIN));
         }
 
         return $this->generateGatewayFormResponse($order, $platformUrl, $html_params);
@@ -293,7 +296,8 @@ class Payzen extends AbstractPaymentModule
         if (null === $currency = $payzenApi->findCurrencyByAlphaCode($order->getCurrency()->getCode())) {
             throw new \InvalidArgumentException(Translator::getInstance()->trans(
                 "Unsupported order currency: '%code'",
-                array('%code' => $order->getCurrency()->getCode())
+                array('%code' => $order->getCurrency()->getCode()),
+                Payzen::MODULE_DOMAIN
             ));
         }
 
@@ -333,10 +337,10 @@ class Payzen extends AbstractPaymentModule
             'vads_shop_name'      => ConfigQuery::read("store_name", ''),
 
             'vads_url_success'    => $this->getPayementSuccessPageUrl($order->getId()),
-            'vads_url_refused'    => $this->getPayementFailurePageUrl($order->getId(), Translator::getInstance()->trans("Your payement has been refused")),
-            'vads_url_referral'   => $this->getPayementFailurePageUrl($order->getId(), Translator::getInstance()->trans("Authorization request was rejected")),
-            'vads_url_cancel'     => $this->getPayementFailurePageUrl($order->getId(), Translator::getInstance()->trans("You canceled the payement")),
-            'vads_url_error'      => $this->getPayementFailurePageUrl($order->getId(), Translator::getInstance()->trans("An internal error occured")),
+            'vads_url_refused'    => $this->getPayementFailurePageUrl($order->getId(), Translator::getInstance()->trans("Your payement has been refused"), [], Payzen::MODULE_DOMAIN),
+            'vads_url_referral'   => $this->getPayementFailurePageUrl($order->getId(), Translator::getInstance()->trans("Authorization request was rejected"), [], Payzen::MODULE_DOMAIN),
+            'vads_url_cancel'     => $this->getPayementFailurePageUrl($order->getId(), Translator::getInstance()->trans("You canceled the payement"), [], Payzen::MODULE_DOMAIN),
+            'vads_url_error'      => $this->getPayementFailurePageUrl($order->getId(), Translator::getInstance()->trans("An internal error occured"), [], Payzen::MODULE_DOMAIN),
 
             // User-defined configuration variables
 

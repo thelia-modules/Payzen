@@ -25,6 +25,7 @@ namespace Payzen\Form;
 
 use Payzen\Model\PayzenConfigQuery;
 use Payzen\Payzen\PayzenApi;
+use Payzen\Payzen;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -40,28 +41,30 @@ use Thelia\Model\Module;
  */
 class ConfigurationForm extends BaseForm
 {
+    protected function trans($str, $params = []) {
+        return Translator::getInstance()->trans($str, $params, Payzen::MODULE_DOMAIN);
+    }
+
     protected function buildForm()
     {
-        $T = Translator::getInstance();
-
         $api = new PayzenApi();
 
         // Available languages, translated.
         $available_languages = array();
 
         foreach ($api->getSupportedLanguages() as $code => $label) {
-            $available_languages[$code] = $T->trans($label);
+            $available_languages[$code] = $this->trans($label);
         }
 
         $available_languages_combo = array_merge(
-            array("" => $T->trans("Please select...")),
+            array("" => $this->trans("Please select...")),
             $available_languages
         );
 
         asort($available_languages);
 
         foreach ($api->getSupportedCardTypes() as $code => $label) {
-            $available_cards[$code] = $T->trans($label);
+            $available_cards[$code] = $this->trans($label);
         }
 
         asort($available_cards);
@@ -77,11 +80,11 @@ class ConfigurationForm extends BaseForm
                 array(
                     'constraints' => array(new NotBlank()),
                     'required' => true,
-                    'label' => $T->trans('Site ID'),
+                    'label' => $this->trans('Site ID'),
                     'data' => PayzenConfigQuery::read('site_id', '12345678'),
                     'label_attr' => array(
                         'for' => 'site_id',
-                        'help' => $T->trans('Site ID provided by the payment gateway')
+                        'help' => $this->trans('Site ID provided by the payment gateway')
                     )
                 )
             )
@@ -91,11 +94,11 @@ class ConfigurationForm extends BaseForm
                 array(
                     'constraints' => array(new NotBlank()),
                     'required' => true,
-                    'label' => $T->trans('Test certificate'),
+                    'label' => $this->trans('Test certificate'),
                     'data' => PayzenConfigQuery::read('test_certificate', '1111111111111111'),
                     'label_attr' => array(
                         'for' => 'test_certificate',
-                        'help' => $T->trans('The test certificate provided by the payment gateway')
+                        'help' => $this->trans('The test certificate provided by the payment gateway')
                     )
                 )
             )
@@ -105,11 +108,11 @@ class ConfigurationForm extends BaseForm
                 array(
                     'constraints' => array(new NotBlank()),
                     'required' => true,
-                    'label' => $T->trans('Production certificate'),
+                    'label' => $this->trans('Production certificate'),
                     'data' => PayzenConfigQuery::read('production_certificate', '1111111111111111'),
                     'label_attr' => array(
                         'for' => 'production_certificate',
-                        'help' => $T->trans('The production certificate provided by the payment gateway')
+                        'help' => $this->trans('The production certificate provided by the payment gateway')
                     )
                 )
             )
@@ -119,11 +122,11 @@ class ConfigurationForm extends BaseForm
                 array(
                     'constraints' => array(new NotBlank()),
                     'required' => true,
-                    'label' => $T->trans('Payment page URL'),
+                    'label' => $this->trans('Payment page URL'),
                     'data' => PayzenConfigQuery::read('platform_url', 'https://secure.payzen.eu/vads-payment/'),
                     'label_attr' => array(
                         'for' => 'platform_url',
-                        'help' => $T->trans('URL the client will be redirected to')
+                        'help' => $this->trans('URL the client will be redirected to')
                     )
                 )
             )
@@ -134,14 +137,14 @@ class ConfigurationForm extends BaseForm
                     'constraints' => array(new NotBlank()),
                     'required' => true,
                     'choices' => array(
-                        'TEST' => $T->trans('Test'),
-                        'PROD' => $T->trans('Production'),
+                        'TEST' => $this->trans('Test'),
+                        'PROD' => $this->trans('Production'),
                     ),
-                    'label' => $T->trans('Operation Mode'),
+                    'label' => $this->trans('Operation Mode'),
                     'data' => PayzenConfigQuery::read('mode', 'TEST'),
                     'label_attr' => array(
                         'for' => 'mode',
-                        'help' => $T->trans('Test or production mode')
+                        'help' => $this->trans('Test or production mode')
                     )
                 )
             )
@@ -150,11 +153,11 @@ class ConfigurationForm extends BaseForm
                 'textarea',
                 array(
                     'required' => false,
-                    'label' => $T->trans('Allowed IPs in test mode'),
+                    'label' => $this->trans('Allowed IPs in test mode'),
                     'data' => PayzenConfigQuery::read('allowed_ip_list', ''),
                     'label_attr' => array(
                         'for' => 'platform_url',
-                        'help' => $T->trans(
+                        'help' => $this->trans(
                                 'List of IP addresses allowed to use this payment on the front-office when in test mode (your current IP is %ip). One address per line',
                                 array('%ip' => $this->getRequest()->getClientIp())
                         ),
@@ -169,11 +172,11 @@ class ConfigurationForm extends BaseForm
                     'constraints' => array(new NotBlank()),
                     'required' => true,
                     'choices' => $available_languages_combo,
-                    'label' => $T->trans('Default language'),
+                    'label' => $this->trans('Default language'),
                     'data' => PayzenConfigQuery::read('default_language', ''),
                     'label_attr' => array(
                         'for' => 'default_language',
-                        'help' => $T->trans('The default language of the payment page')
+                        'help' => $this->trans('The default language of the payment page')
                     )
                 )
             )
@@ -184,11 +187,11 @@ class ConfigurationForm extends BaseForm
                     'required' => false,
                     'choices' => $available_languages,
                     'multiple' => true,
-                    'label' => $T->trans('Available languages'),
+                    'label' => $this->trans('Available languages'),
                     'data' => explode(';', PayzenConfigQuery::read('available_languages', '')),
                     'label_attr' => array(
                         'for' => 'available_languages',
-                        'help' => $T->trans(
+                        'help' => $this->trans(
                                 'Languages available on the payment page. Select nothing to use gateway config.'
                             ),
                         'size' => 10
@@ -204,11 +207,11 @@ class ConfigurationForm extends BaseForm
                         new GreaterThanOrEqual(array('value' => 0))
                     ),
                     'required' => true,
-                    'label' => $T->trans('Banking delay'),
+                    'label' => $this->trans('Banking delay'),
                     'data' => PayzenConfigQuery::read('banking_delay', '0'),
                     'label_attr' => array(
                         'for' => 'banking_delay',
-                        'help' => $T->trans('Delay before banking (in days)')
+                        'help' => $this->trans('Delay before banking (in days)')
                     )
                 )
             )
@@ -218,15 +221,15 @@ class ConfigurationForm extends BaseForm
                 array(
                     'required' => false,
                     'choices' => array(
-                        '' => $T->trans('Default'),
-                        '0' => $T->trans('Automatic'),
-                        '1' => $T->trans('Manual'),
+                        '' => $this->trans('Default'),
+                        '0' => $this->trans('Automatic'),
+                        '1' => $this->trans('Manual'),
                     ),
-                    'label' => $T->trans('Payment validation'),
+                    'label' => $this->trans('Payment validation'),
                     'data' => PayzenConfigQuery::read('validation_mode', ''),
                     'label_attr' => array(
                         'for' => 'validation_mode',
-                        'help' => $T->trans(
+                        'help' => $this->trans(
                                 'If manual is selected, you will have to confirm payments manually in your bank back-office'
                             )
                     )
@@ -239,11 +242,11 @@ class ConfigurationForm extends BaseForm
                     'required' => false,
                     'choices' => $available_cards,
                     'multiple' => true,
-                    'label' => $T->trans('Available payment cards'),
+                    'label' => $this->trans('Available payment cards'),
                     'data' => explode(';', PayzenConfigQuery::read('allowed_cards', '')),
                     'label_attr' => array(
                         'for' => 'allowed_cards',
-                        'help' => $T->trans('Select nothing to use gateway configuration.'),
+                        'help' => $this->trans('Select nothing to use gateway configuration.'),
                         'size' => 7
                     )
                 )
@@ -254,14 +257,14 @@ class ConfigurationForm extends BaseForm
                 array(
                     'required' => true,
                     'choices' => array(
-                        'False' => $T->trans('Disabled'),
-                        'True' => $T->trans('Enabled'),
+                        'False' => $this->trans('Disabled'),
+                        'True' => $this->trans('Enabled'),
                     ),
-                    'label' => $T->trans('Automatic redirection after payment'),
+                    'label' => $this->trans('Automatic redirection after payment'),
                     'data' => PayzenConfigQuery::read('redirect_enabled', 'True'),
                     'label_attr' => array(
                         'for' => 'redirect_enabled',
-                        'help' => $T->trans('Redirect the customer to the shop at the end of the payment process')
+                        'help' => $this->trans('Redirect the customer to the shop at the end of the payment process')
                     )
                 )
             )
@@ -274,11 +277,11 @@ class ConfigurationForm extends BaseForm
                         new GreaterThanOrEqual(array('value' => 0))
                     ),
                     'required' => true,
-                    'label' => $T->trans('Success timeout'),
+                    'label' => $this->trans('Success timeout'),
                     'data' => PayzenConfigQuery::read('success_timeout', '5'),
                     'label_attr' => array(
                         'for' => 'success_timeout',
-                        'help' => $T->trans(
+                        'help' => $this->trans(
                                 'Time in seconds before the client is redirected after a successful payment'
                             )
                     )
@@ -289,11 +292,11 @@ class ConfigurationForm extends BaseForm
                 'text',
                 array(
                     'required' => false,
-                    'label' => $T->trans('Success message'),
+                    'label' => $this->trans('Success message'),
                     'data' => PayzenConfigQuery::read('success_message', '5'),
                     'label_attr' => array(
                         'for' => 'success_timeout',
-                        'help' => $T->trans('Message displayed after a successful payment before redirecting')
+                        'help' => $this->trans('Message displayed after a successful payment before redirecting')
                     )
                 )
             )
@@ -306,11 +309,11 @@ class ConfigurationForm extends BaseForm
                         new GreaterThanOrEqual(array('value' => 0))
                     ),
                     'required' => true,
-                    'label' => $T->trans('Failure timeout'),
+                    'label' => $this->trans('Failure timeout'),
                     'data' => PayzenConfigQuery::read('failure_timeout', '5'),
                     'label_attr' => array(
                         'for' => 'failure_timeout',
-                        'help' => $T->trans('Time in seconds before the client is redirected after a failed payment')
+                        'help' => $this->trans('Time in seconds before the client is redirected after a failed payment')
                     )
                 )
             )
@@ -319,11 +322,11 @@ class ConfigurationForm extends BaseForm
                 'text',
                 array(
                     'required' => false,
-                    'label' => $T->trans('Failure message'),
+                    'label' => $this->trans('Failure message'),
                     'data' => PayzenConfigQuery::read('failure_message', '5'),
                     'label_attr' => array(
                         'for' => 'failure_message',
-                        'help' => $T->trans('Message displayed after a failed payment before redirecting')
+                        'help' => $this->trans('Message displayed after a failed payment before redirecting')
                     )
                 )
             )
@@ -336,11 +339,11 @@ class ConfigurationForm extends BaseForm
                         new GreaterThanOrEqual(array('value' => 0))
                     ),
                     'required' => true,
-                    'label' => $T->trans('Minimum order total'),
+                    'label' => $this->trans('Minimum order total'),
                     'data' => PayzenConfigQuery::read('minimum_amount', '0'),
                     'label_attr' => array(
                         'for' => 'minimum_amount',
-                        'help' => $T->trans('Minimum order total in the default currency for which this payment method is available. Enter 0 for no minimum')
+                        'help' => $this->trans('Minimum order total in the default currency for which this payment method is available. Enter 0 for no minimum')
                     )
                 )
             )
@@ -353,11 +356,11 @@ class ConfigurationForm extends BaseForm
                         new GreaterThanOrEqual(array('value' => 0))
                     ),
                     'required' => true,
-                    'label' => $T->trans('Maximum order total'),
+                    'label' => $this->trans('Maximum order total'),
                     'data' => PayzenConfigQuery::read('maximum_amount', '0'),
                     'label_attr' => array(
                         'for' => 'maximum_amount',
-                        'help' => $T->trans('Maximum order total in the default currency for which this payment method is available. Enter 0 for no maximum')
+                        'help' => $this->trans('Maximum order total in the default currency for which this payment method is available. Enter 0 for no maximum')
                     )
                 )
             )
@@ -370,11 +373,11 @@ class ConfigurationForm extends BaseForm
                         new GreaterThanOrEqual(array('value' => 0))
                     ),
                     'required' => true,
-                    'label' => $T->trans('3D Secure minimum order amount'),
+                    'label' => $this->trans('3D Secure minimum order amount'),
                     'data' => PayzenConfigQuery::read('three_ds_minimum_order_amount', '0'),
                     'label_attr' => array(
                         'for' => 'three_ds_minimum_order_amount',
-                        'help' => $T->trans('Minimum order total in the default currency to request a 3D Secure authentication')
+                        'help' => $this->trans('Minimum order total in the default currency to request a 3D Secure authentication')
                     )
                 )
             )
@@ -390,11 +393,11 @@ class ConfigurationForm extends BaseForm
                         new GreaterThanOrEqual(array('value' => 0))
                     ),
                     'required' => true,
-                    'label' => $T->trans('Minimum order total for multiple times'),
+                    'label' => $this->trans('Minimum order total for multiple times'),
                     'data' => PayzenConfigQuery::read('minimum_amount', '0'),
                     'label_attr' => array(
                         'for' => 'minimum_amount',
-                        'help' => $T->trans('Minimum order total in the default currency for which multiple times payment method is available. Enter 0 for no minimum')
+                        'help' => $this->trans('Minimum order total in the default currency for which multiple times payment method is available. Enter 0 for no minimum')
                     )
                 )
             )
@@ -407,11 +410,11 @@ class ConfigurationForm extends BaseForm
                         new GreaterThanOrEqual(array('value' => 0))
                     ),
                     'required' => true,
-                    'label' => $T->trans('Maximum order total for multiple times'),
+                    'label' => $this->trans('Maximum order total for multiple times'),
                     'data' => PayzenConfigQuery::read('maximum_amount', '0'),
                     'label_attr' => array(
                         'for' => 'maximum_amount',
-                        'help' => $T->trans('Maximum order total in the default currency for which multiple times payment method is available. Enter 0 for no maximum')
+                        'help' => $this->trans('Maximum order total in the default currency for which multiple times payment method is available. Enter 0 for no maximum')
                     )
                 )
             )
@@ -425,11 +428,11 @@ class ConfigurationForm extends BaseForm
                         new LessThanOrEqual(array('value' => 100))
                     ),
                     'required' => false,
-                    'label' => $T->trans('Amount of first payment '),
+                    'label' => $this->trans('Amount of first payment '),
                     'data' => PayzenConfigQuery::read('multi_first_payment', 25),
                     'label_attr' => array(
                         'for' => 'multi_first_payment',
-                        'help' => $T->trans('Amount of the first payment, as a percent of the order total. If zero or empty, all payments will be equals.')
+                        'help' => $this->trans('Amount of the first payment, as a percent of the order total. If zero or empty, all payments will be equals.')
                     )
                 )
             )
@@ -442,11 +445,11 @@ class ConfigurationForm extends BaseForm
                         new GreaterThanOrEqual(array('value' => 1))
                     ),
                     'required' => true,
-                    'label' => $T->trans('Number of payments'),
+                    'label' => $this->trans('Number of payments'),
                     'data' => PayzenConfigQuery::read('multi_number_of_payments', 4),
                     'label_attr' => array(
                         'for' => 'multi_number_of_payments',
-                        'help' => $T->trans('The total number of payments')
+                        'help' => $this->trans('The total number of payments')
                     )
                 )
             )
@@ -456,11 +459,11 @@ class ConfigurationForm extends BaseForm
                 array(
                     'constraints' => array(new NotBlank()),
                     'required' => true,
-                    'label' => $T->trans('Days between two payments'),
+                    'label' => $this->trans('Days between two payments'),
                     'data' => PayzenConfigQuery::read('multi_payments_interval', 30),
                     'label_attr' => array(
                         'for' => 'multi_payments_interval',
-                        'help' => $T->trans('The interval in days between payments')
+                        'help' => $this->trans('The interval in days between payments')
                     )
                 )
             )

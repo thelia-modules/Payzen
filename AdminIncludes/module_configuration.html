@@ -2,7 +2,7 @@
     <div class="col-md-12 general-block-decorator">
         <div class="row">
             <div class="col-md-12 title title-without-tabs">
-                {intl l="Payzen Configuration"}
+                {intl d='payzen.ai' l="Payzen Configuration"}
             </div>
         </div>
 
@@ -30,7 +30,7 @@
 
                     <div class="row">
                         <div class="col-md-4">
-                            <p class="title title-without-tabs">{intl l="Access to Payzen Platform"}</p>
+                            <p class="title title-without-tabs">{intl d='payzen.ai' l="Access to Payzen Platform"}</p>
 
                             {include file="payzen/form-field-template.html" field_name="site_id"}
                             {include file="payzen/form-field-template.html" field_name="test_certificate"}
@@ -41,25 +41,25 @@
 
                             <div class="form-group">
                                 <label class="control-label">
-                                    {intl l="Return URL in the back-office"}
+                                    {intl d='payzen.ai' l="Return URL in the back-office"}
                                 </label>
 
-                                <p class="form-control-static">{url path='/payzen/callback'}</p>
+                                <div class="well well-sm">{url path='/payzen/callback'}</div>
 
                                 <span class="help-block">
-                                    {intl l="Copy this URL in the 'Return URL of the shop in production mode' and 'Shop's return URL in test mode' fields in the back-office"}
+                                    {intl d='payzen.ai' l="Copy this URL in the 'Return URL of the shop in production mode' and 'Shop's return URL in test mode' fields in the back-office"}
                                 </span>
                             </div>
                         </div>
 
                         <div class="col-md-4">
-                            <p class="title title-without-tabs">{intl l="Payment configuration"}</p>
+                            <p class="title title-without-tabs">{intl d='payzen.ai' l="Payment configuration"}</p>
 
                             {include file="payzen/form-field-template.html" field_name="banking_delay"}
                             {include file="payzen/form-field-template.html" field_name="validation_mode"}
                             {include file="payzen/form-field-template.html" field_name="allowed_cards"}
 
-                            <p class="title title-without-tabs">{intl l="One time payment"}</p>
+                            <p class="title title-without-tabs">{intl d='payzen.ai' l="One time payment"}</p>
 
                             {include file="payzen/form-field-template.html" field_name="minimum_amount"}
                             {include file="payzen/form-field-template.html" field_name="maximum_amount"}
@@ -67,13 +67,13 @@
                             {include file="payzen/form-field-template.html" field_name="three_ds_minimum_order_amount"}
 
 
-                            <p class="title title-without-tabs">{intl l="Multiple times payment"}</p>
+                            <p class="title title-without-tabs">{intl d='payzen.ai' l="Multiple times payment"}</p>
 
                             {loop name="multi-plugin-enabled" type="module" code="PayzenMulti" active="1"}
                             {/loop}
                             {elseloop rel="multi-plugin-enabled"}
                                 <div class="alert alert-info">
-                                    {intl l="Install and activate Payzen multiple times payment module to get configuration options."}
+                                    {intl l="Install and activate Payzen multiple times payment module to get configuration options." d='payzen.ai'}
                                 </div>
                             {/elseloop}
 
@@ -86,7 +86,7 @@
                         </div>
 
                         <div class="col-md-4">
-                            <p class="title title-without-tabs">{intl l="Payment page"}</p>
+                            <p class="title title-without-tabs">{intl d='payzen.ai' l="Payment page"}</p>
 
                             {include file="payzen/form-field-template.html" field_name="default_language"}
                             {include file="payzen/form-field-template.html" field_name="available_languages"}

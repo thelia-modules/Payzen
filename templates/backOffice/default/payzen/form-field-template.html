@@ -13,7 +13,7 @@
             </label>
 
             {if $multiple}
-                <span class="label-help-block">{intl l='Use Ctrl+click to select (or deselect) more that one item'}</span>
+                <span class="label-help-block">{intl d="payzen.bo.default" l='Use Ctrl+click to select (or deselect) more that one item'}</span>
             {/if}
 
             {if $type == 'choice'}
@@ -37,7 +37,7 @@
 
                     <input type="{$type}" {if $required}aria-required="true" required{/if} placeholder="{$label}" id="{$label_attr.for}" name="{$name}" value="{$value}" class="form-control" />
                 {else}
-                    <div class="alert alert-danger">{intl l="Unsupported field type '%type' in form-field-template.html" type=$type}</div>
+                    <div class="alert alert-danger">{intl d="payzen.bo.default" l="Unsupported field type '%type' in form-field-template.html" type=$type}</div>
                 {/if}
             {/if}
 
