@@ -25,6 +25,7 @@ namespace Payzen\Controller;
 
 use Payzen\Form\ConfigurationForm;
 use Payzen\Model\PayzenConfigQuery;
+use Payzen\Payzen;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
@@ -105,7 +106,7 @@ class ConfigurationController extends BaseAdminController
         // just redisplay the same template.
         // Setup the Form error context, to make error information available in the template.
         $this->setupFormErrorContext(
-            $this->getTranslator()->trans("Payzen configuration"),
+            $this->getTranslator()->trans("Payzen configuration", [], Payzen::MODULE_DOMAIN),
             $error_msg,
             $configurationForm,
             $ex

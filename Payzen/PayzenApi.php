@@ -32,6 +32,7 @@ namespace Payzen\Payzen;
 * @copyright www.lyra-network.com
 * PHP classes to integrate an e-commerce solution with the payment platform supported by lyra-network.
 */
+use Thelia\Core\Translation\Translator;
 
 /**
  * Class managing parameters checking, form and signature building, response analysis and more
@@ -594,16 +595,16 @@ class PayzenApi
     function getSupportedLanguages()
     {
         return array(
-            'fr' => 'French',
-            'de' => 'German',
-            'en' => 'English',
-            'es' => 'Spanish',
-            'zh' => 'Chinese',
-            'it' => 'Italian',
-            'ja' => 'Japanese',
-            'pt' => 'Portuguese',
-            'nl' => 'Dutch',
-            'sv' => 'Swedish'
+            'fr' => Translator::getInstance()->trans('French', [], Payzen::MODULE_DOMAIN),
+            'de' => Translator::getInstance()->trans('German', [], Payzen::MODULE_DOMAIN),
+            'en' => Translator::getInstance()->trans('English', [], Payzen::MODULE_DOMAIN),
+            'es' => Translator::getInstance()->trans('Spanish', [], Payzen::MODULE_DOMAIN),
+            'zh' => Translator::getInstance()->trans('Chinese', [], Payzen::MODULE_DOMAIN),
+            'it' => Translator::getInstance()->trans('Italian', [], Payzen::MODULE_DOMAIN),
+            'ja' => Translator::getInstance()->trans('Japanese', [], Payzen::MODULE_DOMAIN),
+            'pt' => Translator::getInstance()->trans('Portuguese', [], Payzen::MODULE_DOMAIN),
+            'nl' => Translator::getInstance()->trans('Dutch', [], Payzen::MODULE_DOMAIN),
+            'sv' => Translator::getInstance()->trans('Swedish', [], Payzen::MODULE_DOMAIN)
         );
     }
 

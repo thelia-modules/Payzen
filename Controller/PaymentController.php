@@ -25,6 +25,7 @@ namespace Payzen\Controller;
 
 use Payzen\Model\PayzenConfigQuery;
 use Payzen\Payzen\PayzenResponse;
+use Payzen\Payzen;
 use Thelia\Core\HttpFoundation\Response;
 use Thelia\Module\BasePaymentModuleController;
 
@@ -58,7 +59,7 @@ class PaymentController extends BasePaymentModuleController
         $request = $this->getRequest();
         $order_id = intval($request->get('vads_order_id'));
 
-        $this->getLog()->addInfo($this->getTranslator()->trans("Payzen platform request received for order ID %id.", array('%id' => $order_id)));
+        $this->getLog()->addInfo($this->getTranslator()->trans("Payzen platform request received for order ID %id.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
         if (null !== $order = $this->getOrder($order_id)) {
 
@@ -72,11 +73,11 @@ class PaymentController extends BasePaymentModuleController
                     // Payment was accepted.
 
                     if ($order->isPaid()) {
-                        $this->getLog()->addInfo($this->getTranslator()->trans("Order ID %id is already paid.", array('%id' => $order_id)));
+                        $this->getLog()->addInfo($this->getTranslator()->trans("Order ID %id is already paid.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
                         $gateway_response_code = 'payment_ok_already_done';
                     } else {
-                        $this->getLog()->addInfo($this->getTranslator()->trans("Order ID %id payment was successful.", array('%id' => $order_id)));
+                        $this->getLog()->addInfo($this->getTranslator()->trans("Order ID %id payment was successful.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
                         // Payment OK !
                         $this->confirmPayment($order_id);
@@ -93,7 +94,7 @@ class PaymentController extends BasePaymentModuleController
 
                         // Payment was not accepted.
 
-                        $this->getLog()->addError($this->getTranslator()->trans("Order ID %id payment failed.", array('%id' => $order_id)));
+                        $this->getLog()->addError($this->getTranslator()->trans("Order ID %id payment failed.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
                         if ($order->isPaid()) {
                             $gateway_response_code = 'payment_ko_already_done';
@@ -111,7 +112,7 @@ class PaymentController extends BasePaymentModuleController
             $gateway_response_code = 'order_not_found';
         }
 
-        $this->getLog()->info($this->getTranslator()->trans("Payzen platform request for order ID %id processing teminated.", array('%id' => $order_id)));
+        $this->getLog()->info($this->getTranslator()->trans("Payzen platform request for order ID %id processing teminated.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
         return Response::create($payzenResponse->getOutputForGateway($gateway_response_code));
     }
