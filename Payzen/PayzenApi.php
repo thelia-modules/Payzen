@@ -32,6 +32,7 @@ namespace Payzen\Payzen;
 * @copyright www.lyra-network.com
 * PHP classes to integrate an e-commerce solution with the payment platform supported by lyra-network.
 */
+use Payzen\Payzen;
 use Thelia\Core\Translation\Translator;
 
 /**
