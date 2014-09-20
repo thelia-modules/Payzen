@@ -182,7 +182,7 @@ class Payzen extends AbstractPaymentModule
             $valid = in_array($client_ip, $allowed_client_ips);
 
         }
-        else if ('PROD' == $mode) {
+        else if ('PRODUCTION' == $mode) {
 
             $valid = true;
         }

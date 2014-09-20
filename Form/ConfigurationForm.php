@@ -138,7 +138,7 @@ class ConfigurationForm extends BaseForm
                     'required' => true,
                     'choices' => array(
                         'TEST' => $this->trans('Test'),
-                        'PROD' => $this->trans('Production'),
+                        'PRODUCTION' => $this->trans('Production'),
                     ),
                     'label' => $this->trans('Operation Mode'),
                     'data' => PayzenConfigQuery::read('mode', 'TEST'),
