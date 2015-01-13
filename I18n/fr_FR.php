@@ -19,7 +19,7 @@ return array(
     'Delay before banking (in days)' => 'Délai en jours de remise du paiement en banque',
     'Disabled' => 'Désactivée',
     'Dutch' => 'Néerlandais',
-    'Enabled' => 'Acrivée',
+    'Enabled' => 'Activée',
     'English' => 'Anglais',
     'Failure message' => 'Message affiché sur échec du paiement',
     'Failure timeout' => 'Délai d\'attente sur échec de paiement',
