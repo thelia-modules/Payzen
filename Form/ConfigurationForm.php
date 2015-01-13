@@ -293,7 +293,7 @@ class ConfigurationForm extends BaseForm
                 array(
                     'required' => false,
                     'label' => $this->trans('Success message'),
-                    'data' => PayzenConfigQuery::read('success_message', '5'),
+                    'data' => PayzenConfigQuery::read('success_message', ''),
                     'label_attr' => array(
                         'for' => 'success_timeout',
                         'help' => $this->trans('Message displayed after a successful payment before redirecting')
@@ -323,7 +323,7 @@ class ConfigurationForm extends BaseForm
                 array(
                     'required' => false,
                     'label' => $this->trans('Failure message'),
-                    'data' => PayzenConfigQuery::read('failure_message', '5'),
+                    'data' => PayzenConfigQuery::read('failure_message', ''),
                     'label_attr' => array(
                         'for' => 'failure_message',
                         'help' => $this->trans('Message displayed after a failed payment before redirecting')
