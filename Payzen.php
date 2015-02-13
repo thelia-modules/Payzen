@@ -256,11 +256,12 @@ class Payzen extends AbstractPaymentModule
      * @param PayzenCurrency $currency
      * @return string the value for vads_payment_config parameter
      */
-    protected function getPaymentConfigValue($payment_config, $orderAmount, $currency) {
+    protected function getPaymentConfigValue($payment_config, $orderAmount, $currency)
+    {
 
         if ('MULTI' == $payment_config) {
 
-            $first    = PayzenConfigQuery::read('multi_first_payment', 0);
+            $first    = $currency->convertAmountToInteger(($orderAmount*PayzenConfigQuery::read('multi_first_payment', 0))/100);
             $count    = PayzenConfigQuery::read('multi_number_of_payments', 4);
             $interval = PayzenConfigQuery::read('multi_payments_interval', 30);
 

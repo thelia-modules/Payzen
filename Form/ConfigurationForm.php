@@ -394,9 +394,9 @@ class ConfigurationForm extends BaseForm
                     ),
                     'required' => true,
                     'label' => $this->trans('Minimum order total for multiple times'),
-                    'data' => PayzenConfigQuery::read('minimum_amount', '0'),
+                    'data' => PayzenConfigQuery::read('multi_minimum_amount', '0'),
                     'label_attr' => array(
-                        'for' => 'minimum_amount',
+                        'for' => 'multi_minimum_amount',
                         'help' => $this->trans('Minimum order total in the default currency for which multiple times payment method is available. Enter 0 for no minimum')
                     )
                 )
@@ -411,9 +411,9 @@ class ConfigurationForm extends BaseForm
                     ),
                     'required' => true,
                     'label' => $this->trans('Maximum order total for multiple times'),
-                    'data' => PayzenConfigQuery::read('maximum_amount', '0'),
+                    'data' => PayzenConfigQuery::read('multi_maximum_amount', '0'),
                     'label_attr' => array(
-                        'for' => 'maximum_amount',
+                        'for' => 'multi_maximum_amount',
                         'help' => $this->trans('Maximum order total in the default currency for which multiple times payment method is available. Enter 0 for no maximum')
                     )
                 )
