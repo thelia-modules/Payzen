@@ -33,6 +33,7 @@ use Thelia\Log\Tlog;
 use Thelia\Mailer\MailerFactory;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\MessageQuery;
+use Thelia\Model\ModuleQuery;
 
 /**
  * Payzen payment module
@@ -74,7 +75,14 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
     {
         $payzen = new Payzen();
 
-        if ($event->getOrder()->isPaid() && $payzen->isPaymentModuleFor($event->getOrder())) {
+        $isPayzenSEPA = ModuleQuery::create()
+            ->filterByCode('PayzenOneOffSEPA')
+            ->select('ID')
+            ->findOne();
+
+
+        if ($event->getOrder()->isPaid() &&
+            ($payzen->isPaymentModuleFor($event->getOrder()) || $event->getOrder()->getPaymentModuleId() == $isPayzenSEPA)) {
 
             $contact_email = ConfigQuery::read('store_email', false);
 
@@ -112,7 +120,7 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
             }
         }
         else {
-            Tlog::getInstance()->debug("No confirmation email sent (order not paid, or not the proper payement module.");
+            Tlog::getInstance()->debug("No confirmation email sent (order not paid, or not the proper payment module).");
         }
     }
 

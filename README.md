@@ -50,6 +50,10 @@ L'intégration est automatique, et s'appuie sur les templates standard.
 
 Payzen propose le paiement en plusieurs fois. Vous pouvez le proposer à vos clients en installant le module Thelia **PayzenMulti**.
 
+### Paiement par prélèvement SEPA (SDD)
+
+Payzen propose le paiement par prélèvement SEPA. Vous pouvez le proposer à vos clients en installant le module Thelia **PayzenOneOffSEPA**.
+
 ----------
 
 This module offers to your customers the Payzen payment system, operated by the Lyra Networks compagny.
@@ -64,7 +68,7 @@ You have to configure the Payzen module before starting to use it. To do so, go 
 
 Then click the "Configure" button, and enter the required information, which are available in your Payzen back-office -&gt; Setting -&gt; Shops -&gt; *your shop*
 
-During the test phase, you can defins the IP addresses allowed to use the Payzen module on the front office, so that your customers will not be able to pay with Payzen during this test phase. 
+During the test phase, you can defin the IP addresses allowed to use the Payzen module on the front office, so that your customers will not be able to pay with Payzen during this test phase.
 
 ### Return URL
 
@@ -82,4 +86,8 @@ The front-office integration is automatic, as it relies on standard templates.
 
 ### Multiple times payments
 
-Multiple time payements are possible with Payzen. To offer this feature to your customers, install the Thelia **PayzenMulti** module on your shop.
+Multiple time payments are possible with Payzen. To offer this feature to your customers, install the Thelia **PayzenMulti** module on your shop.
+
+### SEPA payment (SDD)
+
+SEPA payments are possible with Payzen. To offer this feature to your customers, install the Thelia **PayzenOneOffSEPA** module on your shop.

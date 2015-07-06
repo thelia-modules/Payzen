@@ -134,13 +134,14 @@ class Payzen extends AbstractPaymentModule
     /**
      * Payment gateway invocation
      *
-     * @param  Order $order processed order
+     * @param Order $order processed order
      * @param string the payment mode, either 'SINGLE' ou 'MULTI'
+     * @param string $payment_mean, either SDD (SEPA) or bank cards list
      * @return Response the HTTP response
      */
-    protected function doPay(Order $order, $payment_mode)
+    protected function doPay(Order $order, $payment_mode, $payment_mean = '')
     {
-        $payzen_params = $this->getPayzenParameters($order, $payment_mode);
+        $payzen_params = $this->getPayzenParameters($order, $payment_mode, $payment_mean);
 
         // Convert files into standard var => value array
         $html_params = array();
@@ -280,11 +281,12 @@ class Payzen extends AbstractPaymentModule
      *
      * @param Order $order
      * @param string $payment_config single or multiple payment - see vads_payment_config parameter description
+     * @param string $payment_mean SEPA or bank card - see vads_payment_cards parameter description
      *
      * @throws \InvalidArgumentException if an unsupported currency is used in order
      * @return array the payzen form parameters
      */
-    protected function getPayzenParameters(Order $order, $payment_config)
+    protected function getPayzenParameters(Order $order, $payment_config, $payment_mean)
     {
         $payzenApi = new PayzenMultiApi();
 
@@ -301,6 +303,12 @@ class Payzen extends AbstractPaymentModule
                 Payzen::MODULE_DOMAIN
             ));
         }
+
+	    // Check payment mean
+        if ($payment_mean !== 'SDD') {
+            $payment_mean = PayzenConfigQuery::read('allowed_cards');
+        }
+
 
         $customer = $order->getCustomer();
 
@@ -338,9 +346,9 @@ class Payzen extends AbstractPaymentModule
             'vads_shop_name'      => ConfigQuery::read("store_name", ''),
 
             'vads_url_success'    => $this->getPaymentSuccessPageUrl($order->getId()),
-            'vads_url_refused'    => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("Your payement has been refused"), [], Payzen::MODULE_DOMAIN),
+            'vads_url_refused'    => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("Your payment has been refused"), [], Payzen::MODULE_DOMAIN),
             'vads_url_referral'   => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("Authorization request was rejected"), [], Payzen::MODULE_DOMAIN),
-            'vads_url_cancel'     => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("You canceled the payement"), [], Payzen::MODULE_DOMAIN),
+            'vads_url_cancel'     => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("You canceled the payment"), [], Payzen::MODULE_DOMAIN),
             'vads_url_error'      => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("An internal error occured"), [], Payzen::MODULE_DOMAIN),
 
             // User-defined configuration variables
@@ -355,7 +363,7 @@ class Payzen extends AbstractPaymentModule
 
             'vads_capture_delay'       => PayzenConfigQuery::read('banking_delay'),
             'vads_validation_mode'     => PayzenConfigQuery::read('validation_mode'),
-            'vads_payment_cards'       => PayzenConfigQuery::read('allowed_cards'),
+            'vads_payment_cards'       => $payment_mean,
 
             'vads_redirect_enabled'          => PayzenConfigQuery::read('redirect_enabled'),
             'vads_redirect_success_timeout'  => PayzenConfigQuery::read('success_timeout'),
