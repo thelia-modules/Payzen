@@ -26,7 +26,10 @@ namespace Payzen\Controller;
 use Payzen\Model\PayzenConfigQuery;
 use Payzen\Payzen\PayzenResponse;
 use Payzen\Payzen;
+use Thelia\Core\Event\Order\OrderEvent;
+use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\HttpFoundation\Response;
+use Thelia\Model\OrderStatusQuery;
 use Thelia\Module\BasePaymentModuleController;
 
 /**
@@ -79,8 +82,24 @@ class PaymentController extends BasePaymentModuleController
                     } else {
                         $this->getLog()->addInfo($this->getTranslator()->trans("Order ID %id payment was successful.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
-                        // Payment OK !
-                        $this->confirmPayment($order_id);
+                        // Check if it's a SEPA payment to set order status at 'waiting_payment'
+                        if ($request->get('vads_card_brand') === 'SDD') {
+
+                            // Get 'waiting_payment' status ID
+                            $waitingPaymentStatusId = OrderStatusQuery::create()
+                                ->filterByCode('waiting_payment')
+                                ->select('ID')
+                                ->findOne();
+
+                            // Build & dispatch order update event (listened in PayzenOneOffSEPA module)
+                            $event = new OrderEvent($order);
+                            $event->setStatus($waitingPaymentStatusId);
+                            $this->dispatch(TheliaEvents::ORDER_UPDATE_STATUS, $event);
+
+                        } else {
+                            // Payment OK !
+                            $this->confirmPayment($order_id);
+                        }
 
                         $gateway_response_code = 'payment_ok';
                     }
