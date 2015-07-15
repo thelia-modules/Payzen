@@ -112,7 +112,7 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
             }
         }
         else {
-            Tlog::getInstance()->debug("No confirmation email sent (order not paid, or not the proper payement module.");
+            Tlog::getInstance()->debug("No confirmation email sent (order not paid, or not the proper payment module).");
         }
     }
 

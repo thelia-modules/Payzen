@@ -47,7 +47,7 @@
                                 <div class="well well-sm">{url path='/payzen/callback'}</div>
 
                                 <span class="help-block">
-                                    {intl d='payzen.ai' l="Copy this URL in the 'Return URL of the shop in production mode' and 'Shop's return URL in test mode' fields in the back-office"}
+                                    {intl d='payzen.ai' l="Copy this URL in the 'URL to notify in TEST mode' and 'URL to notify in PRODUCTION mode' (which must not be mistaken with the 'Return URL of the shop') in 'Notification rules' fields in the PayZen back-office"}
                                 </span>
                             </div>
                         </div>
@@ -83,6 +83,19 @@
                             {include file="payzen/form-field-template.html" field_name="multi_first_payment"}
                             {include file="payzen/form-field-template.html" field_name="multi_number_of_payments"}
                             {include file="payzen/form-field-template.html" field_name="multi_payments_interval"}
+
+
+                            <p class="title title-without-tabs">{intl d='payzen.ai' l="One off SEPA payment (SDD)"}</p>
+
+                            {loop name="oneoffsepa-plugin-enabled" type="module" code="PayzenOneOffSEPA" active="1"}
+                            <p>{intl d="payzen.ai" l="No configuration needed"}.</p>
+                            {/loop}
+                            {elseloop rel="oneoffsepa-plugin-enabled"}
+                            <div class="alert alert-info">
+                                {intl l="Install and activate 'Payzen One Off SEPA' module to get configuration options." d='payzen.ai'}
+                            </div>
+                            {/elseloop}
+
                         </div>
 
                         <div class="col-md-4">
