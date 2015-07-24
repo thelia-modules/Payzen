@@ -14,7 +14,6 @@ use Propel\Runtime\Map\RelationMap;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Map\TableMapTrait;
 
-
 /**
  * This class defines the structure of the 'payzen_config' table.
  *
@@ -91,7 +90,7 @@ class PayzenConfigTableMap extends TableMap
      * first dimension keys are the type constants
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
-    protected static $fieldNames = array (
+    protected static $fieldNames = array(
         self::TYPE_PHPNAME       => array('Name', 'Value', ),
         self::TYPE_STUDLYPHPNAME => array('name', 'value', ),
         self::TYPE_COLNAME       => array(PayzenConfigTableMap::NAME, PayzenConfigTableMap::VALUE, ),
@@ -106,7 +105,7 @@ class PayzenConfigTableMap extends TableMap
      * first dimension keys are the type constants
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
-    protected static $fieldKeys = array (
+    protected static $fieldKeys = array(
         self::TYPE_PHPNAME       => array('Name' => 0, 'Value' => 1, ),
         self::TYPE_STUDLYPHPNAME => array('name' => 0, 'value' => 1, ),
         self::TYPE_COLNAME       => array(PayzenConfigTableMap::NAME => 0, PayzenConfigTableMap::VALUE => 1, ),
@@ -177,8 +176,7 @@ class PayzenConfigTableMap extends TableMap
      */
     public static function getPrimaryKeyFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-
-            return (string) $row[
+        return (string) $row[
                             $indexType == TableMap::TYPE_NUM
                             ? 0 + $offset
                             : self::translateFieldName('Name', TableMap::TYPE_PHPNAME, $indexType)
@@ -305,10 +303,10 @@ class PayzenConfigTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-      $dbMap = Propel::getServiceContainer()->getDatabaseMap(PayzenConfigTableMap::DATABASE_NAME);
-      if (!$dbMap->hasTable(PayzenConfigTableMap::TABLE_NAME)) {
-        $dbMap->addTableObject(new PayzenConfigTableMap());
-      }
+        $dbMap = Propel::getServiceContainer()->getDatabaseMap(PayzenConfigTableMap::DATABASE_NAME);
+        if (!$dbMap->hasTable(PayzenConfigTableMap::TABLE_NAME)) {
+            $dbMap->addTableObject(new PayzenConfigTableMap());
+        }
     }
 
     /**
@@ -324,31 +322,33 @@ class PayzenConfigTableMap extends TableMap
      */
      public static function doDelete($values, ConnectionInterface $con = null)
      {
-        if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(PayzenConfigTableMap::DATABASE_NAME);
-        }
+         if (null === $con) {
+             $con = Propel::getServiceContainer()->getWriteConnection(PayzenConfigTableMap::DATABASE_NAME);
+         }
 
-        if ($values instanceof Criteria) {
-            // rename for clarity
+         if ($values instanceof Criteria) {
+             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \Payzen\Model\PayzenConfig) { // it's a model object
+         } elseif ($values instanceof \Payzen\Model\PayzenConfig) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
-        } else { // it's a primary key, or an array of pks
+         } else { // it's a primary key, or an array of pks
             $criteria = new Criteria(PayzenConfigTableMap::DATABASE_NAME);
-            $criteria->add(PayzenConfigTableMap::NAME, (array) $values, Criteria::IN);
-        }
+             $criteria->add(PayzenConfigTableMap::NAME, (array) $values, Criteria::IN);
+         }
 
-        $query = PayzenConfigQuery::create()->mergeWith($criteria);
+         $query = PayzenConfigQuery::create()->mergeWith($criteria);
 
-        if ($values instanceof Criteria) { PayzenConfigTableMap::clearInstancePool();
-        } elseif (!is_object($values)) { // it's a primary key, or an array of pks
-            foreach ((array) $values as $singleval) { PayzenConfigTableMap::removeInstanceFromPool($singleval);
+         if ($values instanceof Criteria) {
+             PayzenConfigTableMap::clearInstancePool();
+         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
+            foreach ((array) $values as $singleval) {
+                PayzenConfigTableMap::removeInstanceFromPool($singleval);
             }
-        }
+         }
 
-        return $query->delete($con);
-    }
+         return $query->delete($con);
+     }
 
     /**
      * Deletes all rows from the payzen_config table.
@@ -399,7 +399,6 @@ class PayzenConfigTableMap extends TableMap
 
         return $pk;
     }
-
 } // PayzenConfigTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //

@@ -49,43 +49,43 @@ class PayzenApi
      * @var array[string]PayzenField
      * @access private
      */
-    var $requestParameters = array();
+    public $requestParameters = array();
     /**
      * Certificate to send in TEST mode
      * @var string
      * @access private
      */
-    var $keyTest;
+    public $keyTest;
     /**
      * Certificate to send in PRODUCTION mode
      * @var string
      * @access private
      */
-    var $keyProd;
+    public $keyProd;
     /**
      * Url of the payment page
      * @var string
      * @access private
      */
-    var $platformUrl;
+    public $platformUrl;
     /**
      * Set to true to send the redirect_* parameters
      * @var boolean
      * @access private
      */
-    var $redirectEnabled;
+    public $redirectEnabled;
     /**
      * SHA-1 authentication signature
      * @var string
      * @access private
      */
-    var $signature;
+    public $signature;
     /**
      * The original data encoding.
      * @var string
      * @access private
      */
-    var $encoding;
+    public $encoding;
 
     /**
      * The list of categories for payment with bank accord. To be sent with the products detail if you use this payment mean.
@@ -93,7 +93,7 @@ class PayzenApi
      * @var array
      * @access public
      */
-    var $ACCORD_CATEGORIES = array(
+    public $ACCORD_CATEGORIES = array(
         "FOOD_AND_GROCERY",
         "AUTOMOTIVE",
         "ENTERTAINMENT",
@@ -118,7 +118,7 @@ class PayzenApi
      * @var array
      * @access public
      */
-    var $SUPPORTED_ENCODINGS = array(
+    public $SUPPORTED_ENCODINGS = array(
         "UTF-8",
         "ASCII",
         "Windows-1252",
@@ -135,7 +135,7 @@ class PayzenApi
      * Constructor.
      * Initialize request fields definitions.
      */
-    function __construct($encoding = "UTF-8")
+    public function __construct($encoding = "UTF-8")
     {
         // Initialize encoding
         $this->encoding = in_array(strtoupper($encoding), $this->SUPPORTED_ENCODINGS) ? strtoupper($encoding) : "UTF-8";
@@ -547,7 +547,7 @@ class PayzenApi
      * @return string the generated trans_id
      * @access private
      */
-    function _generateTransId($timestamp)
+    public function _generateTransId($timestamp)
     {
         list($usec, $sec) = explode(" ", microtime()); // microseconds, php4 compatible
         $temp = ($timestamp + $usec - strtotime('today 00:00')) * 10;
@@ -566,7 +566,7 @@ class PayzenApi
      * @return boolean true on success
      * @access private
      */
-    function _addRequestField(
+    public function _addRequestField(
         $name,
         $label,
         $regex,
@@ -593,7 +593,7 @@ class PayzenApi
      * @static
      * @return array[string]string
      */
-    function getSupportedLanguages()
+    public function getSupportedLanguages()
     {
         return array(
             'fr' => Translator::getInstance()->trans('French', [], Payzen::MODULE_DOMAIN),
@@ -615,7 +615,7 @@ class PayzenApi
      * @param string $lang
      * @return boolean
      */
-    function isSupportedLanguage($lang)
+    public function isSupportedLanguage($lang)
     {
         foreach ($this->getSupportedLanguages() as $code => $label) {
             if ($code == strtolower($lang)) {
@@ -631,7 +631,7 @@ class PayzenApi
      * @static
      * @return array[int]PayzenCurrency
      */
-    function getSupportedCurrencies()
+    public function getSupportedCurrencies()
     {
         $currencies = array(
             array('ARS', 32, 2),
@@ -689,7 +689,7 @@ class PayzenApi
      * @param string $alpha3
      * @return PayzenCurrency
      */
-    function findCurrencyByAlphaCode($alpha3)
+    public function findCurrencyByAlphaCode($alpha3)
     {
         $list = $this->getSupportedCurrencies();
 
@@ -708,7 +708,7 @@ class PayzenApi
      * @param int $num
      * @return PayzenCurrency
      */
-    function findCurrencyByNumCode($numeric)
+    public function findCurrencyByNumCode($numeric)
     {
         $list = $this->getSupportedCurrencies();
         foreach ($list as $currency) {
@@ -726,7 +726,7 @@ class PayzenApi
      * @param string $alpha3
      * @return int
      */
-    function getCurrencyNumCode($alpha3)
+    public function getCurrencyNumCode($alpha3)
     {
         $currency = $this->findCurrencyByAlphaCode($alpha3);
         return is_a($currency, 'PayzenCurrency') ? $currency->num : null;
@@ -737,7 +737,7 @@ class PayzenApi
      * @static
      * @return array[string]string
      */
-    function getSupportedCardTypes()
+    public function getSupportedCardTypes()
     {
         return array(
             'CB' => 'CB',
@@ -758,7 +758,7 @@ class PayzenApi
      * @param array [string]mixed $parameters
      * @return boolean true on success
      */
-    function setFromArray($parameters)
+    public function setFromArray($parameters)
     {
         $ok = true;
         foreach ($parameters as $name => $value) {
@@ -774,7 +774,7 @@ class PayzenApi
      * @param string $name
      * @return mixed null if $name was not recognised
      */
-    function get($name)
+    public function get($name)
     {
         if (!$name || !is_string($name)) {
             return null;
@@ -806,7 +806,7 @@ class PayzenApi
      * @param mixed $value
      * @return boolean true on success
      */
-    function set($name, $value)
+    public function set($name, $value)
     {
         if (!$name || !is_string($name)) {
             return false;
@@ -841,7 +841,7 @@ class PayzenApi
      * @param string $url
      * @return boolean
      */
-    function setPlatformUrl($url)
+    public function setPlatformUrl($url)
     {
         if (!preg_match('#https?://([^/]+/)+#', $url)) {
             return false;
@@ -855,7 +855,7 @@ class PayzenApi
      * @param mixed $enabled false, '0', a null or negative integer or 'false' to disable
      * @return boolean
      */
-    function setRedirectEnabled($enabled)
+    public function setRedirectEnabled($enabled)
     {
         $this->redirectEnabled = !(!$enabled || $enabled == '0'
             || strtolower($enabled) == 'false');
@@ -868,7 +868,7 @@ class PayzenApi
      * @param string $mode
      * @return boolean true if the certificate could be set
      */
-    function setCertificate($key, $mode)
+    public function setCertificate($key, $mode)
     {
         // Check format
         if (!preg_match('#\d{16}#', $key)) {
@@ -894,7 +894,7 @@ class PayzenApi
      * @param string $type
      * @return boolean true if product infos are set correctly
      */
-    function addProductRequestField($label, $amount, $qty, $ref, $type)
+    public function addProductRequestField($label, $amount, $qty, $ref, $type)
     {
         $index = $this->get("nb_products") ? $this->get("nb_products") : 0;
 
@@ -954,7 +954,7 @@ class PayzenApi
      * @param string $value
      * @return boolean true if extra info is set correctly
      */
-    function addExtInfoRequestField($key, $value)
+    public function addExtInfoRequestField($key, $value)
     {
         return $this->_addRequestField(
             "vads_ext_info_" . $key,
@@ -971,7 +971,7 @@ class PayzenApi
      * Return certificate according to current mode, false if mode was not set
      * @return string|boolean
      */
-    function getCertificate()
+    public function getCertificate()
     {
         switch ($this->requestParameters['vads_ctx_mode']
             ->getValue()) {
@@ -995,7 +995,7 @@ class PayzenApi
      * @return string
      * @access private
      */
-    function _generateSignatureFromFields($fields = null, $hashed = true)
+    public function _generateSignatureFromFields($fields = null, $hashed = true)
     {
         $params = array();
         $fields = ($fields !== null) ? $fields : $this->requestParameters;
@@ -1015,7 +1015,7 @@ class PayzenApi
      * @access public
      * @static
      */
-    function sign($parameters, $key, $hashed = true)
+    public function sign($parameters, $key, $hashed = true)
     {
         $signContent = "";
         ksort($parameters);
@@ -1035,7 +1035,7 @@ class PayzenApi
     /**
      * Unset the value of optionnal fields if they are unvalid
      */
-    function clearInvalidOptionnalFields()
+    public function clearInvalidOptionnalFields()
     {
         $fields = $this->getRequestFields();
         foreach ($fields as $field) {
@@ -1050,7 +1050,7 @@ class PayzenApi
      * @param array $errors will be filled with the name of invalid fields
      * @return boolean
      */
-    function isRequestReady(&$errors = null)
+    public function isRequestReady(&$errors = null)
     {
         $errors = is_array($errors) ? $errors : array();
         $fields = $this->getRequestFields();
@@ -1067,7 +1067,7 @@ class PayzenApi
      * @return array[string]PayzenField a list of PayzenField or false if a parameter was invalid
      * @see PayzenField
      */
-    function getRequestFields()
+    public function getRequestFields()
     {
         $fields = $this->requestParameters;
 
@@ -1101,7 +1101,7 @@ class PayzenApi
      * Return the url of the payment page with urlencoded parameters (GET-like url)
      * @return boolean|string
      */
-    function getRequestUrl()
+    public function getRequestUrl()
     {
         $fields = $this->getRequestFields();
 
@@ -1125,14 +1125,13 @@ class PayzenApi
      * @param string $buttonType
      * @return string
      */
-    function getRequestHtmlForm(
+    public function getRequestHtmlForm(
         $enteteAdd = '',
         $inputType = 'hidden',
         $buttonValue = 'Aller sur la plateforme de paiement',
         $buttonAdd = '',
         $buttonType = 'submit'
     ) {
-
         $html = "";
         $html .= '<form action="' . $this->platformUrl . '" method="POST" '
             . $enteteAdd . '>';
@@ -1150,7 +1149,7 @@ class PayzenApi
      * @param string $inputAttributes
      * @return string
      */
-    function getRequestFieldsHtml($inputAttributes = 'type="hidden"')
+    public function getRequestFieldsHtml($inputAttributes = 'type="hidden"')
     {
         $fields = $this->getRequestFields();
 
@@ -1171,7 +1170,7 @@ class PayzenApi
      * Return the html fields to send to the payment page as a key/value array
      * @return array[string][string]
      */
-    function getRequestFieldsArray()
+    public function getRequestFieldsArray()
     {
         $fields = $this->getRequestFields();
 
@@ -1192,7 +1191,7 @@ class PayzenApi
      *
      * @param array $potentiallyMagicallyQuotedData
      */
-    function uncharm($potentiallyMagicallyQuotedData)
+    public function uncharm($potentiallyMagicallyQuotedData)
     {
         if (get_magic_quotes_gpc()) {
             $sane = array();

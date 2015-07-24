@@ -63,7 +63,7 @@ class ConfigurationController extends BaseAdminController
             // Get the form field values
             $data = $form->getData();
 
-            foreach($data as $name => $value) {
+            foreach ($data as $name => $value) {
                 if (is_array($value)) {
                     $value = implode(';', $value);
                 }
@@ -82,8 +82,7 @@ class ConfigurationController extends BaseAdminController
             if ($this->getRequest()->get('save_mode') == 'stay') {
                 // If we have to stay on the same page, redisplay the configuration page/
                 $route = '/admin/module/Payzen';
-            }
-            else {
+            } else {
                 // If we have to close the page, go back to the module back-office page.
                 $route = '/admin/modules';
             }
@@ -91,14 +90,12 @@ class ConfigurationController extends BaseAdminController
             $this->redirect(URL::getInstance()->absoluteUrl($route));
 
             // An exit is performed after redirect.+
-
         } catch (FormValidationException $ex) {
             // Form cannot be validated. Create the error message using
             // the BaseAdminController helper method.
             $error_msg = $this->createStandardFormValidationErrorMessage($ex);
-        }
-        catch (\Exception $ex) {
-              // Any other error
+        } catch (\Exception $ex) {
+            // Any other error
              $error_msg = $ex->getMessage();
         }
 

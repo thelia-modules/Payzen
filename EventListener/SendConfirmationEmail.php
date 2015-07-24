@@ -75,7 +75,6 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
         $payzen = new Payzen();
 
         if ($event->getOrder()->isPaid() && $payzen->isPaymentModuleFor($event->getOrder())) {
-
             $contact_email = ConfigQuery::read('store_email', false);
 
             Tlog::getInstance()->debug("Sending confirmation email from store contact e-mail $contact_email");
@@ -110,8 +109,7 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
 
                 Tlog::getInstance()->debug("Confirmation email sent to customer ".$customer->getEmail());
             }
-        }
-        else {
+        } else {
             Tlog::getInstance()->debug("No confirmation email sent (order not paid, or not the proper payment module).");
         }
     }

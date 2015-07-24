@@ -70,7 +70,6 @@ class Payzen extends AbstractPaymentModule
         $email_templates_dir = __DIR__.DS.'I18n'.DS.'email-templates'.DS;
 
         if (null === MessageQuery::create()->findOneByName(self::CONFIRMATION_MESSAGE_NAME)) {
-
             $message = new Message();
 
             $message
@@ -104,7 +103,6 @@ class Payzen extends AbstractPaymentModule
     {
         // Delete config table and messages if required
         if ($deleteModuleData) {
-
             $database = new Database($con);
 
             $database->execute("DROP TABLE ?", PayzenConfigTableMap::TABLE_NAME);
@@ -147,8 +145,9 @@ class Payzen extends AbstractPaymentModule
         $html_params = array();
 
         /** @var PayzenField $field */
-        foreach($payzen_params as $name => $field)
+        foreach ($payzen_params as $name => $field) {
             $html_params[$name] = $field->getValue();
+        }
 
         // Be sure to have a valid platform URL, otherwise give up
         if (false === $platformUrl = PayzenConfigQuery::read('platform_url', false)) {
@@ -169,22 +168,18 @@ class Payzen extends AbstractPaymentModule
 
         // If we're in test mode, do not display Payzen on the front office, except for allowed IP addresses.
         if ('TEST' == $mode) {
-
             $raw_ips = explode("\n", PayzenConfigQuery::read('allowed_ip_list', ''));
 
             $allowed_client_ips = array();
 
-            foreach($raw_ips as $ip) {
+            foreach ($raw_ips as $ip) {
                 $allowed_client_ips[] = trim($ip);
             }
 
             $client_ip = $this->getRequest()->getClientIp();
 
             $valid = in_array($client_ip, $allowed_client_ips);
-
-        }
-        else if ('PRODUCTION' == $mode) {
-
+        } elseif ('PRODUCTION' == $mode) {
             $valid = true;
         }
 
@@ -201,7 +196,8 @@ class Payzen extends AbstractPaymentModule
      *
      * @return bool true if the current order total is within the min and max limits
      */
-    protected function checkMinMaxAmount() {
+    protected function checkMinMaxAmount()
+    {
 
         // Check if total order amount is in the module's limits
         $order_total = $this->getCurrentOrderTotalAmount();
@@ -226,7 +222,6 @@ class Payzen extends AbstractPaymentModule
         $con->beginTransaction();
 
         try {
-
             $trans_id = intval(PayzenConfigQuery::read('next_transaction_id', 1));
 
             $next_trans_id = 1 + $trans_id;
@@ -239,10 +234,8 @@ class Payzen extends AbstractPaymentModule
 
             $con->commit();
 
-            return sprintf("%06d",$trans_id);
-        }
-        catch (\Exception $ex) {
-
+            return sprintf("%06d", $trans_id);
+        } catch (\Exception $ex) {
             $con->rollback();
 
             throw $ex;
@@ -259,9 +252,7 @@ class Payzen extends AbstractPaymentModule
      */
     protected function getPaymentConfigValue($payment_config, $orderAmount, $currency)
     {
-
         if ('MULTI' == $payment_config) {
-
             $first    = $currency->convertAmountToInteger(($orderAmount*PayzenConfigQuery::read('multi_first_payment', 0))/100);
             $count    = PayzenConfigQuery::read('multi_number_of_payments', 4);
             $interval = PayzenConfigQuery::read('multi_payments_interval', 30);
@@ -304,7 +295,7 @@ class Payzen extends AbstractPaymentModule
             ));
         }
 
-	    // Check payment mean
+        // Check payment mean
         if ($payment_mean !== 'SDD') {
             $payment_mean = PayzenConfigQuery::read('allowed_cards');
         }
@@ -316,8 +307,7 @@ class Payzen extends AbstractPaymentModule
         if (null !== $langObj = LangQuery::create()->findPk($customer->getLang())) {
             $customer_lang = $langObj->getCode();
             $locale        = $langObj->getLocale();
-        }
-        else {
+        } else {
             $customer_lang = PayzenConfigQuery::read('default_language');
             $locale        = LangQuery::create()->findOneByByDefault(true)->getLocale();
         }
@@ -326,7 +316,9 @@ class Payzen extends AbstractPaymentModule
 
         // Customer phone (first non empty)
         $phone = $address->getPhone();
-        if (empty($phone)) $phone = $address->getCellphone();
+        if (empty($phone)) {
+            $phone = $address->getCellphone();
+        }
 
         // Transaction ID
         $transaction_id = $this->getTransactionId();

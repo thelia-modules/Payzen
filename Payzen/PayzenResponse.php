@@ -4,81 +4,82 @@ namespace Payzen\Payzen;
 /**
  * Class representing the result of a transaction (sent by the check url or by the client return)
  */
-class PayzenResponse {
+class PayzenResponse
+{
     /**
      * Raw response parameters array
      * @var array
      * @access private
      */
-    var $raw_response = array();
+    public $raw_response = array();
     /**
      * Certificate used to check the signature
      * @see PayzenApi::sign
      * @var boolean
      * @access private
      */
-    var $certificate;
+    public $certificate;
     /**
      * Value of vads_result
      * @var string
      * @access private
      */
-    var $code;
+    public $code;
     /**
      * Translation of $code (vads_result)
      * @var string
      * @access private
      */
-    var $message;
+    public $message;
     /**
      * Value of vads_extra_result
      * @var string
      * @access private
      */
-    var $extraCode;
+    public $extraCode;
     /**
      * Translation of $extraCode (vads_extra_result)
      * @var string
      * @access private
      */
-    var $extraMessage;
+    public $extraMessage;
     /**
      * Value of vads_auth_result
      * @var string
      * @access private
      */
-    var $authCode;
+    public $authCode;
     /**
      * Translation of $authCode (vads_auth_result)
      * @var string
      * @access private
      */
-    var $authMessage;
+    public $authMessage;
     /**
      * Value of vads_warranty_result
      * @var string
      * @access private
      */
-    var $warrantyCode;
+    public $warrantyCode;
     /**
      * Translation of $warrantyCode (vads_warranty_result)
      * @var string
      * @access private
      */
-    var $warrantyMessage;
+    public $warrantyMessage;
     /**
      * Internal reference to PayzenApi for using util methods
      * @var PayzenApi
      * @access private
      */
-    var $api;
+    public $api;
 
     /**
      * Associative array containing human-readable translations of response codes. Initialized to french translations.
      * @var array
      * @access private
      */
-    var $translation = array(
+    public $translation = array(
         'no_code' => '',
         'no_translation' => '',
         'results' => array(
@@ -210,11 +211,11 @@ class PayzenResponse {
      * @param string $key_prod
      * @param string $encoding
      */
-    function __construct($parameters = null, $ctx_mode = null, $key_test = null, $key_prod = null) {
-
+    public function __construct($parameters = null, $ctx_mode = null, $key_test = null, $key_prod = null)
+    {
         $this->api = new PayzenApi(); // Use default API encoding (UTF-8) since the payment platform returns UTF-8 data
 
-        if(is_null($parameters)) {
+        if (is_null($parameters)) {
             $parameters = $_REQUEST;
         }
         $parameters = $this->api->uncharm($parameters);
@@ -238,7 +239,8 @@ class PayzenResponse {
      * @param array[string]string $raw
      * @param boolean $authentified
      */
-    function load($raw, $certificate) {
+    public function load($raw, $certificate)
+    {
         $this->raw_response = is_array($raw) ? $raw : array();
         $this->certificate = $certificate;
 
@@ -301,7 +303,8 @@ class PayzenResponse {
      * Check response signature
      * @return boolean
      */
-    function isAuthentified() {
+    public function isAuthentified()
+    {
         return $this->api->sign($this->raw_response, $this->certificate)
         == $this->getSignature();
     }
@@ -311,7 +314,8 @@ class PayzenResponse {
      * @param boolean $hashed apply sha1, false by default
      * @return string
      */
-    function getComputedSignature($hashed = false) {
+    public function getComputedSignature($hashed = false)
+    {
         return $this->api->sign($this->raw_response, $this->certificate, $hashed);
     }
 
@@ -319,7 +323,8 @@ class PayzenResponse {
      * Check if the payment was successful (waiting confirmation or captured)
      * @return boolean
      */
-    function isAcceptedPayment() {
+    public function isAcceptedPayment()
+    {
         return $this->code == '00';
     }
 
@@ -327,7 +332,8 @@ class PayzenResponse {
      * Check if the payment is waiting confirmation (successful but the amount has not been transfered and is not yet guaranteed)
      * @return boolean
      */
-    function isPendingPayment() {
+    public function isPendingPayment()
+    {
         return $this->get('auth_mode') == 'MARK';
     }
 
@@ -335,7 +341,8 @@ class PayzenResponse {
      * Check if the payment process was interrupted by the client
      * @return boolean
      */
-    function isCancelledPayment() {
+    public function isCancelledPayment()
+    {
         return $this->code == '17';
     }
 
@@ -344,7 +351,8 @@ class PayzenResponse {
      * @param string $name
      * @return string
      */
-    function get($name) {
+    public function get($name)
+    {
         // Manage shortcut notations by adding 'vads_'
         $name = (substr($name, 0, 5) != 'vads_') ? 'vads_' . $name : $name;
 
@@ -356,7 +364,8 @@ class PayzenResponse {
      * @param string $key
      * @return string
      */
-    function getExtInfo($key) {
+    public function getExtInfo($key)
+    {
         return $this->get("ext_info_$key");
     }
 
@@ -364,7 +373,8 @@ class PayzenResponse {
      * Returns the expected signature received from gateway.
      * @return string
      */
-    function getSignature() {
+    public function getSignature()
+    {
         return @$this->raw_response['signature'];
     }
 
@@ -372,7 +382,8 @@ class PayzenResponse {
      * Return the paid amount converted from cents (or currency equivalent) to a decimal value
      * @return float
      */
-    function getFloatAmount() {
+    public function getFloatAmount()
+    {
         $currency = $this->api->findCurrencyByNumCode($this->get('currency'));
         return $currency->convertAmountToFloat($this->get('amount'));
     }
@@ -381,7 +392,8 @@ class PayzenResponse {
      * Return a short description of the payment result, useful for logging
      * @return string
      */
-    function getLogString() {
+    public function getLogString()
+    {
         $log = $this->code . ' : ' . $this->message;
         if ($this->code == '30') {
             $log .= ' (' . $this->extraCode . ' : ' . $this->extraMessage . ')';
@@ -395,7 +407,8 @@ class PayzenResponse {
      * @param string $extraMessage some extra information to output to the payment gateway
      * @return string
      */
-    function getOutputForGateway($case = '', $extraMessage = '', $originalEncoding="UTF-8") {
+    public function getOutputForGateway($case = '', $extraMessage = '', $originalEncoding="UTF-8")
+    {
         $success = false;
         $message = '';
 
@@ -422,7 +435,7 @@ class PayzenResponse {
         // Set original CMS encoding to convert if necessary response to send to platform
         $encoding = in_array(strtoupper($originalEncoding), $this->api->SUPPORTED_ENCODINGS) ? strtoupper($originalEncoding) : "UTF-8";
 
-        if($encoding !== "UTF-8") {
+        if ($encoding !== "UTF-8") {
             $message = iconv($encoding, "UTF-8", $message);
         }
 
@@ -442,7 +455,8 @@ class PayzenResponse {
      * @param string $defaultTransation
      * @access private
      */
-    function _findInArray($key, $array, $default) {
+    public function _findInArray($key, $array, $default)
+    {
         if (is_array($array) && array_key_exists($key, $array)) {
             return $array[$key];
         }

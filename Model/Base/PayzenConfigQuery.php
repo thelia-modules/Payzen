@@ -196,7 +196,6 @@ abstract class PayzenConfigQuery extends ModelCriteria
      */
     public function filterByPrimaryKey($key)
     {
-
         return $this->addUsingAlias(PayzenConfigTableMap::NAME, $key, Criteria::EQUAL);
     }
 
@@ -209,7 +208,6 @@ abstract class PayzenConfigQuery extends ModelCriteria
      */
     public function filterByPrimaryKeys($keys)
     {
-
         return $this->addUsingAlias(PayzenConfigTableMap::NAME, $keys, Criteria::IN);
     }
 
@@ -332,16 +330,16 @@ abstract class PayzenConfigQuery extends ModelCriteria
      */
      public function delete(ConnectionInterface $con = null)
      {
-        if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(PayzenConfigTableMap::DATABASE_NAME);
-        }
+         if (null === $con) {
+             $con = Propel::getServiceContainer()->getWriteConnection(PayzenConfigTableMap::DATABASE_NAME);
+         }
 
-        $criteria = $this;
+         $criteria = $this;
 
         // Set the correct dbName
         $criteria->setDbName(PayzenConfigTableMap::DATABASE_NAME);
 
-        $affectedRows = 0; // initialize var to track total num of affected rows
+         $affectedRows = 0; // initialize var to track total num of affected rows
 
         try {
             // use transaction because $criteria could contain info
@@ -349,7 +347,7 @@ abstract class PayzenConfigQuery extends ModelCriteria
             $con->beginTransaction();
 
 
-        PayzenConfigTableMap::removeInstanceFromPool($criteria);
+            PayzenConfigTableMap::removeInstanceFromPool($criteria);
 
             $affectedRows += ModelCriteria::delete($con);
             PayzenConfigTableMap::clearRelatedInstancePool();
@@ -360,6 +358,5 @@ abstract class PayzenConfigQuery extends ModelCriteria
             $con->rollBack();
             throw $e;
         }
-    }
-
+     }
 } // PayzenConfigQuery

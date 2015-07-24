@@ -11,7 +11,7 @@ class PayzenMultiApi extends PayzenApi
     /**
      * Constructor.
      */
-    function __construct($encoding = "UTF-8")
+    public function __construct($encoding = "UTF-8")
     {
         // call parent class constructor
         parent::__construct($encoding);
@@ -25,7 +25,7 @@ class PayzenMultiApi extends PayzenApi
      * @param $period number of days between 2 payments
      * @return boolean true on success
      */
-    function setMultiPayment($total_in_cents = null, $first_in_cents = null, $count = 3, $period = 30)
+    public function setMultiPayment($total_in_cents = null, $first_in_cents = null, $count = 3, $period = 30)
     {
         $result = false;
 
