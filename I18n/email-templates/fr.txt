@@ -1,9 +1,0 @@
-Cher client,
-
-Ce message confirme le paiement de votre commande numero {$order_ref} via Payzen sur notre boutique.
-
-Votre facture est maintenant disponible dans votre compte client à l'adresse {config key="url_site"}
-
-Merci encore pour votre achat !
-
-L'équipe {config key="store_name"}

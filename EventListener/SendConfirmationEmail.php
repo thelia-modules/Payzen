@@ -32,6 +32,7 @@ use Thelia\Core\Template\ParserInterface;
 use Thelia\Log\Tlog;
 use Thelia\Mailer\MailerFactory;
 use Thelia\Model\ConfigQuery;
+use Thelia\Model\Lang;
 use Thelia\Model\MessageQuery;
 
 /**
@@ -77,6 +78,8 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
         if ($event->getOrder()->isPaid() && $payzen->isPaymentModuleFor($event->getOrder())) {
 
             $contact_email = ConfigQuery::read('store_email', false);
+            $lang = Lang::getDefaultLanguage();
+            $locale = $lang->getLocale();
 
             Tlog::getInstance()->debug("Sending confirmation email from store contact e-mail $contact_email");
 
@@ -94,6 +97,7 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
 
                 $this->parser->assign('order_id', $order->getId());
                 $this->parser->assign('order_ref', $order->getRef());
+                $this->parser->assign('locale', $locale);
 
                 $message
                     ->setLocale($order->getLang()->getLocale());

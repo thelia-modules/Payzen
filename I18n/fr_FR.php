@@ -80,4 +80,6 @@ return array(
     'Unsupported order currency: \'%code\'' => 'La devise de la commande n\'est pas supportée: \'%code\' ',
     'You canceled the payment' => 'Vous avez annulé le paiement',
     'Your payment has been refused' => 'Votre paiement a été refusé.',
+    'Order payment confirmation' => 'Confirmation du paiement de votre commande',
+    'Order {$order_ref} payment confirmation' => 'Confirmation du paiement de votre commande {$order_ref}'
 );

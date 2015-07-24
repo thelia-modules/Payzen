@@ -57,6 +57,19 @@ class Payzen extends AbstractPaymentModule
      */
     const CONFIRMATION_MESSAGE_NAME = 'payzen_payment_confirmation';
 
+    /** @var Translator $translator */
+    protected $translator;
+
+    protected function trans($id, $locale, $parameters = [])
+    {
+        if ($this->translator === null) {
+            $this->translator = Translator::getInstance();
+        }
+
+        return $this->translator->trans($id, $parameters, self::MODULE_DOMAIN, $locale);
+
+    }
+
     public function postActivation(ConnectionInterface $con = null)
     {
         // Once activated, create the module schema in the Thelia database.
@@ -66,30 +79,37 @@ class Payzen extends AbstractPaymentModule
                 __DIR__ . DS . 'Config'.DS.'thelia.sql' // The module schema
         ));
 
-        // Create payment confirmation message from templates, if not already defined
-        $email_templates_dir = __DIR__.DS.'I18n'.DS.'email-templates'.DS;
+
+        $languages = LangQuery::create()->find();
+
 
         if (null === MessageQuery::create()->findOneByName(self::CONFIRMATION_MESSAGE_NAME)) {
-
             $message = new Message();
-
             $message
                 ->setName(self::CONFIRMATION_MESSAGE_NAME)
-
-                ->setLocale('en_US')
-                ->setTitle('Payzen payment confirmation')
-                ->setSubject('Payment of order {$order_ref}')
-                ->setHtmlMessage(file_get_contents($email_templates_dir.'en.html'))
-                ->setTextMessage(file_get_contents($email_templates_dir.'en.txt'))
-
-                ->setLocale('fr_FR')
-                ->setTitle('Confirmation de paiement par PayZen')
-                ->setSubject('Confirmation du paiement de votre commande {$order_ref}')
-                ->setHtmlMessage(file_get_contents($email_templates_dir.'fr.html'))
-                ->setTextMessage(file_get_contents($email_templates_dir.'fr.txt'))
-
-                ->save()
+                ->setHtmlLayoutFileName('')
+                ->setHtmlTemplateFileName(self::CONFIRMATION_MESSAGE_NAME.'.html')
+                ->setTextLayoutFileName('')
+                ->setTextTemplateFileName(self::CONFIRMATION_MESSAGE_NAME.'.txt')
             ;
+
+            foreach ($languages as $language) {
+                /** @var Lang $language */
+                $locale = $language->getLocale();
+
+                $message->setLocale($locale);
+
+                $message->setTitle(
+                    $this->trans('Order payment confirmation', $locale)
+                );
+
+                $message->setSubject(
+                    $this->trans('Order {$order_ref} payment confirmation', $locale)
+                );
+            }
+
+            $message->save();
+
         }
 
         /* Deploy the module's image */
