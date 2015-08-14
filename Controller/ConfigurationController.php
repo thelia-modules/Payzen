@@ -87,7 +87,7 @@ class ConfigurationController extends BaseAdminController
                 $route = '/admin/modules';
             }
 
-            $this->redirect(URL::getInstance()->absoluteUrl($route));
+            return $this->generateRedirect(URL::getInstance()->absoluteUrl($route));
 
             // An exit is performed after redirect.+
         } catch (FormValidationException $ex) {
