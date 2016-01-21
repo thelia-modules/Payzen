@@ -7,7 +7,7 @@
     <descriptive locale="fr_FR">
         <title>Payer avec Payzen</title>
     </descriptive>
-    <version>1.2.0</version>
+    <version>1.2.2</version>
     <author>
         <name>Franck Allimant</name>
         <email>franck@cqfdev.fr</email>
