@@ -338,10 +338,10 @@ class Payzen extends AbstractPaymentModule
             'vads_shop_name'      => ConfigQuery::read("store_name", ''),
 
             'vads_url_success'    => $this->getPaymentSuccessPageUrl($order->getId()),
-            'vads_url_refused'    => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("Your payement has been refused"), [], Payzen::MODULE_DOMAIN),
-            'vads_url_referral'   => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("Authorization request was rejected"), [], Payzen::MODULE_DOMAIN),
-            'vads_url_cancel'     => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("You canceled the payement"), [], Payzen::MODULE_DOMAIN),
-            'vads_url_error'      => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("An internal error occured"), [], Payzen::MODULE_DOMAIN),
+            'vads_url_refused'    => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("Your payement has been refused", [], Payzen::MODULE_DOMAIN)),
+            'vads_url_referral'   => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("Authorization request was rejected", [], Payzen::MODULE_DOMAIN)),
+            'vads_url_cancel'     => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("You canceled the payement", [], Payzen::MODULE_DOMAIN)),
+            'vads_url_error'      => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("An internal error occured", [], Payzen::MODULE_DOMAIN)),
 
             // User-defined configuration variables
 
