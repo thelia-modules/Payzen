@@ -35,6 +35,7 @@ use Thelia\Core\Translation\Translator;
 use Thelia\Install\Database;
 use Thelia\Model\Base\CountryQuery;
 use Thelia\Model\ConfigQuery;
+use Thelia\Model\Lang;
 use Thelia\Model\LangQuery;
 use Thelia\Model\Message;
 use Thelia\Model\MessageQuery;
@@ -74,10 +75,13 @@ class Payzen extends AbstractPaymentModule
         // Once activated, create the module schema in the Thelia database.
         $database = new Database($con);
 
-        $database->insertSql(null, array(
+        try {
+            PayzenConfigQuery::create()->findOne();
+        } catch (\Exception $e) {
+            $database->insertSql(null, array(
                 __DIR__ . DS . 'Config'.DS.'thelia.sql' // The module schema
-        ));
-
+            ));
+        }
 
         $languages = LangQuery::create()->find();
 
@@ -152,7 +156,7 @@ class Payzen extends AbstractPaymentModule
      * Payment gateway invocation
      *
      * @param Order $order processed order
-     * @param string the payment mode, either 'SINGLE' ou 'MULTI'
+     * @param string $payment_mode the payment mode, either 'SINGLE' ou 'MULTI'
      * @param string $payment_mean, either SDD (SEPA) or bank cards list
      * @return Response the HTTP response
      */
