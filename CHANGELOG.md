@@ -1,7 +1,7 @@
 # 1.3.0
 
 - Minimum Thelia version is now 2.3.0
-- moduyle.xml uses the v2.2 module schema
+- module.xml uses the v2.2 module schema
 - Using hooks for configuration instead of AdminIncludes.
 - Added the choice of sending the order confirmation email on successful payment only
 - Added the choice of sending a payment confirmation email. 
