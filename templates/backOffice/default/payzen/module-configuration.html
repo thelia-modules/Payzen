@@ -1,0 +1,161 @@
+<div class="row">
+    <div class="col-md-12 general-block-decorator">
+        <div class="row">
+            <div class="col-md-12 title title-without-tabs">
+                {intl d='payzen.bo.default' l="Payzen Configuration"}
+            </div>
+        </div>
+
+        <div class="form-container">
+            <div class="row">
+                <div class="col-md-12">
+                {form name="payzen.configuration.form"}
+
+                <form action="{url path="/admin/module/payzen/configure"}" method="post">
+                    {form_hidden_fields exclude="multi_minimum_amount,multi_maximum_amount,multi_first_payment,multi_number_of_payments"}
+
+                    {include file = "includes/inner-form-toolbar.html"
+                        hide_flags = true
+                        page_url   = "{url path='/admin/module/Payzen'}"
+                        close_url  = "{url path='/admin/modules'}"
+                    }
+
+                    {if $form_error}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="alert alert-danger">{$form_error_message}</div>
+                            </div>
+                        </div>
+                    {/if}
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="title title-without-tabs">{intl d='payzen.bo.default' l="Access to Payzen Platform"}</p>
+
+                            {render_form_field field="site_id"}
+                            {render_form_field field="test_certificate"}
+                            {render_form_field field="production_certificate"}
+                            {render_form_field field="platform_url"}
+                            {render_form_field field="mode"}
+                            {render_form_field field="allowed_ip_list"}
+
+                            <div class="form-group">
+                                <label class="control-label">
+                                    {intl d='payzen.bo.default' l="Return URL in the back-office"}
+                                </label>
+
+                                <div class="well well-sm">{url path='/payzen/callback'}</div>
+
+                                <span class="help-block">
+                                    {intl d='payzen.bo.default' l="Copy this URL in the 'URL to notify in TEST mode' and 'URL to notify in PRODUCTION mode' (which must not be mistaken with the 'Return URL of the shop') in 'Notification rules' fields in the PayZen back-office"}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <p class="title title-without-tabs">{intl d='payzen.bo.default' l="Payment configuration"}</p>
+
+                            {render_form_field field="banking_delay"}
+                            {render_form_field field="validation_mode"}
+                            {render_form_field field="allowed_cards"}
+
+                            <p class="title title-without-tabs">{intl d='payzen.bo.default' l="One time payment"}</p>
+    
+                            {custom_render_form_field field="minimum_amount"}
+                                <div class="input-group">
+                                    <input type="number" {form_field_attributes field="minimum_amount"}>
+                                    <span class="input-group-addon">{currency attr='symbol'}</span>
+                                </div>
+                            {/custom_render_form_field}
+    
+                            {custom_render_form_field field="maximum_amount"}
+                                <div class="input-group">
+                                    <input type="number" {form_field_attributes field="maximum_amount"}>
+                                    <span class="input-group-addon">{currency attr='symbol'}</span>
+                                </div>
+                            {/custom_render_form_field}
+    
+                            {custom_render_form_field field="three_ds_minimum_order_amount"}
+                                <div class="input-group">
+                                    <input type="number" {form_field_attributes field="three_ds_minimum_order_amount"}>
+                                    <span class="input-group-addon">{currency attr='symbol'}</span>
+                                </div>
+                            {/custom_render_form_field}
+
+
+                            <p class="title title-without-tabs">{intl d='payzen.bo.default' l="Multiple times payment"}</p>
+
+                            {loop name="multi-plugin-enabled" type="module" code="PayzenMulti" active="1"}
+                                {custom_render_form_field field="multi_minimum_amount"}
+                                    <div class="input-group">
+                                        <input type="number" {form_field_attributes field="multi_minimum_amount"}>
+                                        <span class="input-group-addon">{currency attr='symbol'}</span>
+                                    </div>
+                                {/custom_render_form_field}
+    
+                                {custom_render_form_field field="multi_maximum_amount"}
+                                    <div class="input-group">
+                                        <input type="number" {form_field_attributes field="multi_maximum_amount"}>
+                                        <span class="input-group-addon">{currency attr='symbol'}</span>
+                                    </div>
+                                {/custom_render_form_field}
+    
+                                {custom_render_form_field field="multi_first_payment"}
+                                    <div class="input-group">
+                                        <input type="number" {form_field_attributes field="multi_first_payment"}>
+                                        <span class="input-group-addon">%</span>
+                                    </div>
+                                {/custom_render_form_field}
+                                
+                                {render_form_field field="multi_number_of_payments"}
+                                {render_form_field field="multi_payments_interval"}
+                            {/loop}
+                            
+                            {elseloop rel="multi-plugin-enabled"}
+                                <div class="alert alert-info">
+                                    {intl l="Install and activate Payzen multiple times payment module to get configuration options." d='payzen.bo.default'}
+                                </div>
+                            {/elseloop}
+
+                            <p class="title title-without-tabs">{intl d='payzen.bo.default' l="One off SEPA payment (SDD)"}</p>
+
+                            {loop name="oneoffsepa-plugin-enabled" type="module" code="PayzenOneOffSEPA" active="1"}
+                                <p>{intl d="payzen.bo.default" l="No configuration needed"}.</p>
+                            {/loop}
+                            
+                            {elseloop rel="oneoffsepa-plugin-enabled"}
+                            <div class="alert alert-info">
+                                {intl l="Install and activate 'Payzen One Off SEPA' module to get configuration options." d='payzen.bo.default'}
+                            </div>
+                            {/elseloop}
+                        </div>
+
+                        <div class="col-md-4">
+                            <p class="title title-without-tabs">{intl d='payzen.bo.default' l="Email configuration"}</p>
+    
+                            {render_form_field field="send_confirmation_message_only_if_paid"}
+                            {render_form_field field="send_payment_confirmation_message"}
+    
+                            <div class="well well-sm">
+                                <span class="glyphicon glyphicon-info-sign"></span>
+                                {intl d='payzen.bo.default' l='You can <a href="%url">edit the payment confirmation email</a> sent to the customer after a successful payment.' url={url path="/admin/configuration/messages"}}
+                            </div>
+    
+                            <p class="title title-without-tabs">{intl d='payzen.bo.default' l="Payment page"}</p>
+
+                            {render_form_field field="default_language"}
+                            {render_form_field field="available_languages"}
+
+                            {render_form_field field="redirect_enabled"}
+                            {render_form_field field="success_timeout"}
+                            {render_form_field field="success_message"}
+                            {render_form_field field="failure_timeout"}
+                            {render_form_field field="failure_message"}
+                        </div>
+                    </div>
+                </form>
+                {/form}
+            </div>
+        </div>
+    </div>
+</div>

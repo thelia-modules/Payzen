@@ -25,6 +25,8 @@ return array(
     'Failure timeout' => 'Délai d\'attente sur échec de paiement',
     'French' => 'Français',
     'German' => 'Allemand',
+    'If checked, a payment confirmation e-mail is sent to the customer.' => 'Si cette case est cochée, un mail de confirmation de paiement sera envoyé au client.',
+    'If checked, the order confirmation message is sent to the customer only when the payment is successful. The order notification is always sent to the shop administrator' => 'Si cette case est cochée, le mail de confirmation de commande sera envoyé au client seulement si son paiement est validé.',
     'If manual is selected, you will have to confirm payments manually in your bank back-office' => 'Si "Manuel" est selectionné, vous devrez confirmer manuellement les paiements dans votre outil de gestion de caisse.',
     'Italian' => 'Italien',
     'Japanese' => 'Japonais',
@@ -47,6 +49,8 @@ return array(
     'Order ID %id is already paid.' => 'La commande ID %id a déjà été payée.',
     'Order ID %id payment failed.' => 'Le paiement de la commande ID %id a échoué.',
     'Order ID %id payment was successful.' => 'Le paiement de la commande ID %id a réussi.',
+    'Order payment confirmation' => 'Confirmation du paiement de votre commande',
+    'Order {$order_ref} payment confirmation' => 'Confirmation du paiement de votre commande {$order_ref}',
     'Payment page URL' => 'URL de la page de paiement',
     'Payment validation' => 'Validation du paiement',
     'Payzen configuration' => 'Configuration PayZen',
@@ -59,6 +63,8 @@ return array(
     'Redirect the customer to the shop at the end of the payment process' => 'Rediriger automatiquement le client vers la boutique après le paiement',
     'Response could not be authentified.' => 'La réponse Payzen ne peut être authentifiée.',
     'Select nothing to use gateway configuration.' => 'Ne sélectionnez aucun element pour utiliser la configuration par défaut de la plate-forme.',
+    'Send a payment confirmation e-mail' => 'Envoyer une confirmation de paiement',
+    'Send order confirmation on payment success' => 'Confirmation de commande si le paiement réussit',
     'Site ID' => 'ID du site',
     'Site ID provided by the payment gateway' => 'Identifiant du site, fourni par la plate-forme de paiement',
     'Spanish' => 'Espagnol',
@@ -80,6 +86,4 @@ return array(
     'Unsupported order currency: \'%code\'' => 'La devise de la commande n\'est pas supportée: \'%code\' ',
     'You canceled the payment' => 'Vous avez annulé le paiement',
     'Your payment has been refused' => 'Votre paiement a été refusé.',
-    'Order payment confirmation' => 'Confirmation du paiement de votre commande',
-    'Order {$order_ref} payment confirmation' => 'Confirmation du paiement de votre commande {$order_ref}'
 );

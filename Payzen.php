@@ -70,6 +70,10 @@ class Payzen extends AbstractPaymentModule
         return $this->translator->trans($id, $parameters, self::MODULE_DOMAIN, $locale);
     }
 
+    /**
+     * @param ConnectionInterface|null $con
+     * @throws \Propel\Runtime\Exception\PropelException
+     */
     public function postActivation(ConnectionInterface $con = null)
     {
         // Once activated, create the module schema in the Thelia database.
@@ -122,6 +126,21 @@ class Payzen extends AbstractPaymentModule
         }
     }
 
+    public function update($currentVersion, $newVersion, ConnectionInterface $con = null)
+    {
+        if (0 === version_compare($newVersion, '1.3.0')) {
+            PayzenConfigQuery::set('send_confirmation_message_only_if_paid', false);
+            PayzenConfigQuery::set('send_payment_confirmation_message', true);
+        }
+
+        parent::update($currentVersion, $newVersion, $con);
+    }
+
+    /**
+     * @param ConnectionInterface|null $con
+     * @param bool $deleteModuleData
+     * @throws \Propel\Runtime\Exception\PropelException
+     */
     public function destroy(ConnectionInterface $con = null, $deleteModuleData = false)
     {
         // Delete config table and messages if required
@@ -299,6 +318,8 @@ class Payzen extends AbstractPaymentModule
      *
      * @throws \InvalidArgumentException if an unsupported currency is used in order
      * @return array the payzen form parameters
+     * @throws \Exception
+     * @throws \Propel\Runtime\Exception\PropelException
      */
     protected function getPayzenParameters(Order $order, $payment_config, $payment_mean)
     {

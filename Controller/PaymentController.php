@@ -43,6 +43,9 @@ class PaymentController extends BasePaymentModuleController
 
     /**
      * Process a Payzen platform request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function processPayzenRequest()
     {

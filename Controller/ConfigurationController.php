@@ -56,7 +56,6 @@ class ConfigurationController extends BaseAdminController
         $configurationForm = new ConfigurationForm($this->getRequest());
 
         try {
-
             // Check the form against constraints violations
             $form = $this->validateForm($configurationForm, "POST");
 
