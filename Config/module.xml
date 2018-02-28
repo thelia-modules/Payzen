@@ -1,18 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module>
+<module xmlns="http://thelia.net/schema/dic/module"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://thelia.net/schema/dic/module http://thelia.net/schema/dic/module/module-2_2.xsd">
     <fullnamespace>Payzen\Payzen</fullnamespace>
     <descriptive locale="en_US">
-        <title>Pay with Payzen</title>
+        <title>Pay with Payzen or SystemPay</title>
     </descriptive>
     <descriptive locale="fr_FR">
-        <title>Payer avec Payzen</title>
+        <title>Payer avec Payzen ou SystemPay</title>
     </descriptive>
-    <version>1.2.3</version>
-    <author>
-        <name>Franck Allimant</name>
-        <email>franck@cqfdev.fr</email>
-    </author>
-    <type>payment</type>
-    <thelia>2.0.0</thelia>
+    <languages>
+        <language>en_US</language>
+        <language>fr_FR</language>
+    </languages>
+    <version>1.3.0</version>
+    <authors>
+        <author>
+            <name>Franck Allimant</name>
+            <company>CQFDev</company>
+            <email>thelia@cqfdev.fr</email>
+            <website>www.cqfdev.fr</website>
+        </author>
+    </authors>
+    <type>classic</type>
+    <thelia>2.3.0</thelia>
     <stability>prod</stability>
+    <mandatory>0</mandatory>
+    <hidden>0</hidden>
 </module>

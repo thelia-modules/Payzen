@@ -159,8 +159,8 @@ class ConfigurationForm extends BaseForm
                     'label_attr' => array(
                         'for' => 'platform_url',
                         'help' => $this->trans(
-                                'List of IP addresses allowed to use this payment on the front-office when in test mode (your current IP is %ip). One address per line',
-                                array('%ip' => $this->getRequest()->getClientIp())
+                            'List of IP addresses allowed to use this payment on the front-office when in test mode (your current IP is %ip). One address per line',
+                            array('%ip' => $this->getRequest()->getClientIp())
                         ),
                         'rows' => 3
                     )
@@ -193,8 +193,8 @@ class ConfigurationForm extends BaseForm
                     'label_attr' => array(
                         'for' => 'available_languages',
                         'help' => $this->trans(
-                                'Languages available on the payment page. Select nothing to use gateway config.'
-                            ),
+                            'Languages available on the payment page. Select nothing to use gateway config.'
+                        ),
                         'size' => 10
                     )
                 )
@@ -231,8 +231,8 @@ class ConfigurationForm extends BaseForm
                     'label_attr' => array(
                         'for' => 'validation_mode',
                         'help' => $this->trans(
-                                'If manual is selected, you will have to confirm payments manually in your bank back-office'
-                            )
+                            'If manual is selected, you will have to confirm payments manually in your bank back-office'
+                        )
                     )
                 )
             )
@@ -283,8 +283,8 @@ class ConfigurationForm extends BaseForm
                     'label_attr' => array(
                         'for' => 'success_timeout',
                         'help' => $this->trans(
-                                'Time in seconds before the client is redirected after a successful payment'
-                            )
+                            'Time in seconds before the client is redirected after a successful payment'
+                        )
                     )
                 )
             )
@@ -333,7 +333,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'minimum_amount',
-                'money',
+                'number',
                 array(
                     'constraints' => array(
                         new NotBlank(),
@@ -341,16 +341,19 @@ class ConfigurationForm extends BaseForm
                     ),
                     'required' => true,
                     'label' => $this->trans('Minimum order total'),
-                    'data' => PayzenConfigQuery::read('minimum_amount', '0'),
+                    'data' => PayzenConfigQuery::read('minimum_amount', 0),
                     'label_attr' => array(
                         'for' => 'minimum_amount',
                         'help' => $this->trans('Minimum order total in the default currency for which this payment method is available. Enter 0 for no minimum')
-                    )
+                    ),
+                    'attr' => [
+                        'step' => 'any'
+                    ]
                 )
             )
             ->add(
                 'maximum_amount',
-                'money',
+                'number',
                 array(
                     'constraints' => array(
                         new NotBlank(),
@@ -358,16 +361,19 @@ class ConfigurationForm extends BaseForm
                     ),
                     'required' => true,
                     'label' => $this->trans('Maximum order total'),
-                    'data' => PayzenConfigQuery::read('maximum_amount', '0'),
+                    'data' => PayzenConfigQuery::read('maximum_amount', 0),
                     'label_attr' => array(
                         'for' => 'maximum_amount',
                         'help' => $this->trans('Maximum order total in the default currency for which this payment method is available. Enter 0 for no maximum')
-                    )
+                    ),
+                    'attr' => [
+                        'step' => 'any'
+                    ]
                 )
             )
             ->add(
                 'three_ds_minimum_order_amount',
-                'money',
+                'number',
                 array(
                     'constraints' => array(
                         new NotBlank(),
@@ -375,100 +381,144 @@ class ConfigurationForm extends BaseForm
                     ),
                     'required' => true,
                     'label' => $this->trans('3D Secure minimum order amount'),
-                    'data' => PayzenConfigQuery::read('three_ds_minimum_order_amount', '0'),
+                    'data' => PayzenConfigQuery::read('three_ds_minimum_order_amount', 0),
                     'label_attr' => array(
                         'for' => 'three_ds_minimum_order_amount',
                         'help' => $this->trans('Minimum order total in the default currency to request a 3D Secure authentication')
-                    )
-                )
-            )
-
-            // -- Multiple payments configuration
-
-            ->add(
-                'multi_minimum_amount',
-                $multiEnabled ? 'money' : 'hidden',
-                array(
-                    'constraints' => array(
-                        new NotBlank(),
-                        new GreaterThanOrEqual(array('value' => 0))
                     ),
-                    'required' => true,
-                    'label' => $this->trans('Minimum order total for multiple times'),
-                    'data' => PayzenConfigQuery::read('multi_minimum_amount', '0'),
-                    'label_attr' => array(
-                        'for' => 'multi_minimum_amount',
-                        'help' => $this->trans('Minimum order total in the default currency for which multiple times payment method is available. Enter 0 for no minimum')
-                    )
+                    'attr' => [
+                        'step' => 'any'
+                    ]
                 )
             )
             ->add(
-                'multi_maximum_amount',
-                $multiEnabled ? 'money' : 'hidden',
-                array(
-                    'constraints' => array(
-                        new NotBlank(),
-                        new GreaterThanOrEqual(array('value' => 0))
-                    ),
-                    'required' => true,
-                    'label' => $this->trans('Maximum order total for multiple times'),
-                    'data' => PayzenConfigQuery::read('multi_maximum_amount', '0'),
-                    'label_attr' => array(
-                        'for' => 'multi_maximum_amount',
-                        'help' => $this->trans('Maximum order total in the default currency for which multiple times payment method is available. Enter 0 for no maximum')
-                    )
-                )
-            )
-            ->add(
-                'multi_first_payment',
-                $multiEnabled ? 'number' : 'hidden',
-                array(
-                    'constraints' => array(
-                        new NotBlank(),
-                        new GreaterThanOrEqual(array('value' => 0)),
-                        new LessThanOrEqual(array('value' => 100))
-                    ),
+                'send_confirmation_message_only_if_paid',
+                'checkbox',
+                [
+                    'value' => 1,
                     'required' => false,
-                    'label' => $this->trans('Amount of first payment '),
-                    'data' => PayzenConfigQuery::read('multi_first_payment', 25),
-                    'label_attr' => array(
-                        'for' => 'multi_first_payment',
-                        'help' => $this->trans('Amount of the first payment, as a percent of the order total. If zero or empty, all payments will be equals.')
-                    )
-                )
+                    'label' => $this->trans('Send order confirmation on payment success'),
+                    'data' => boolval(PayzenConfigQuery::read('send_confirmation_message_only_if_paid', true)),
+                    'label_attr' => [
+                        'help' => $this->trans(
+                            'If checked, the order confirmation message is sent to the customer only when the payment is successful. The order notification is always sent to the shop administrator'
+                        )
+                    ]
+                ]
             )
             ->add(
-                'multi_number_of_payments',
-                $multiEnabled ? 'number' : 'hidden',
-                array(
-                    'constraints' => array(
-                        new NotBlank(),
-                        new GreaterThanOrEqual(array('value' => 1))
-                    ),
-                    'required' => true,
-                    'label' => $this->trans('Number of payments'),
-                    'data' => PayzenConfigQuery::read('multi_number_of_payments', 4),
-                    'label_attr' => array(
-                        'for' => 'multi_number_of_payments',
-                        'help' => $this->trans('The total number of payments')
-                    )
-                )
-            )
-            ->add(
-                'multi_payments_interval',
-                $multiEnabled ? 'number' : 'hidden',
-                array(
-                    'constraints' => array(new NotBlank()),
-                    'required' => true,
-                    'label' => $this->trans('Days between two payments'),
-                    'data' => PayzenConfigQuery::read('multi_payments_interval', 30),
-                    'label_attr' => array(
-                        'for' => 'multi_payments_interval',
-                        'help' => $this->trans('The interval in days between payments')
-                    )
-                )
+                'send_payment_confirmation_message',
+                'checkbox',
+                [
+                    'value' => 1,
+                    'required' => false,
+                    'label' => $this->trans('Send a payment confirmation e-mail'),
+                    'data' => boolval(PayzenConfigQuery::read('send_payment_confirmation_message', true)),
+                    'label_attr' => [
+                        'help' => $this->translator->trans(
+                            'If checked, a payment confirmation e-mail is sent to the customer.'
+                        )
+                    ]
+                ]
             )
         ;
+
+        if ($multiEnabled) {
+            $this->formBuilder
+                ->add(
+                    'multi_minimum_amount',
+                    'number',
+                    array(
+                        'constraints' => array(
+                            new NotBlank(),
+                            new GreaterThanOrEqual(array('value' => 0))
+                        ),
+                        'required' => true,
+                        'label' => $this->trans('Minimum order total for multiple times'),
+                        'data' => PayzenConfigQuery::read('multi_minimum_amount', 0),
+                        'label_attr' => array(
+                            'for' => 'multi_minimum_amount',
+                            'help' => $this->trans('Minimum order total in the default currency for which multiple times payment method is available. Enter 0 for no minimum')
+                        ),
+                        'attr' => [
+                            'step' => 'any'
+                        ]
+                    )
+                )
+                ->add(
+                    'multi_maximum_amount',
+                    'number',
+                    array(
+                        'constraints' => array(
+                            new NotBlank(),
+                            new GreaterThanOrEqual(array('value' => 0))
+                        ),
+                        'required' => true,
+                        'label' => $this->trans('Maximum order total for multiple times'),
+                        'data' => PayzenConfigQuery::read('multi_maximum_amount', 0),
+                        'label_attr' => array(
+                            'for' => 'multi_maximum_amount',
+                            'help' => $this->trans('Maximum order total in the default currency for which multiple times payment method is available. Enter 0 for no maximum')
+                        ),
+                        'attr' => [
+                            'step' => 'any'
+                        ]
+                    )
+                )
+                ->add(
+                    'multi_first_payment',
+                    'number',
+                    array(
+                        'constraints' => array(
+                            new NotBlank(),
+                            new GreaterThanOrEqual(array('value' => 0)),
+                            new LessThanOrEqual(array('value' => 100))
+                        ),
+                        'required' => false,
+                        'label' => $this->trans('Amount of first payment '),
+                        'data' => PayzenConfigQuery::read('multi_first_payment', 25),
+                        'label_attr' => array(
+                            'for' => 'multi_first_payment',
+                            'help' => $this->trans('Amount of the first payment, as a percent of the order total. If zero or empty, all payments will be equals.')
+                        ),
+                        'attr' => [
+                            'step' => 'any'
+                        ]
+                    )
+                )
+                ->add(
+                    'multi_number_of_payments',
+                    'number',
+                    array(
+                        'constraints' => array(
+                            new NotBlank(),
+                            new GreaterThanOrEqual(array('value' => 1))
+                        ),
+                        'required' => true,
+                        'label' => $this->trans('Number of payments'),
+                        'data' => PayzenConfigQuery::read('multi_number_of_payments', 4),
+                        'label_attr' => array(
+                            'for' => 'multi_number_of_payments',
+                            'help' => $this->trans('The total number of payments')
+                        )
+                    )
+                )
+                ->add(
+                    'multi_payments_interval',
+                    'number',
+                    array(
+                        'constraints' => array(new NotBlank()),
+                        'required' => true,
+                        'label' => $this->trans('Days between two payments'),
+                        'data' => PayzenConfigQuery::read('multi_payments_interval', 30),
+                        'label_attr' => array(
+                            'for' => 'multi_payments_interval',
+                            'help' => $this->trans('The interval in days between payments')
+                        )
+                    )
+                )
+            ;
+        }
     }
 
     public function getName()
