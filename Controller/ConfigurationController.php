@@ -49,9 +49,6 @@ class ConfigurationController extends BaseAdminController
             return $response;
         }
 
-        // Initialize the potential error message, and the potential exception
-        $error_msg = $ex = null;
-
         // Create the Form from the request
         $configurationForm = new ConfigurationForm($this->getRequest());
 

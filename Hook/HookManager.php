@@ -20,17 +20,15 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
+
 /**
  * Created by Franck Allimant, CQFDev <franck@cqfdev.fr>
  * Date: 11/01/2016 11:57
  */
-
 namespace Payzen\Hook;
 
 use Thelia\Core\Event\Hook\HookRenderEvent;
 use Thelia\Core\Hook\BaseHook;
-use Thelia\Model\ModuleConfig;
-use Thelia\Model\ModuleConfigQuery;
 
 class HookManager extends BaseHook
 {

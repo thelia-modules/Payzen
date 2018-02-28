@@ -23,6 +23,10 @@ Ce module vous permet de proposer à vos clients le système de paiement Payzen 
 
 Pour installer le module Payzen, décompressez l'archive dans `<racine de thelia>/local/modules`. Veillez à ce que le dossier porte le nom `Payzen` (et pas `Payzen-master`, par exemple).
 
+**Warning**: Attention, si vous mettez à jour manuellement une version pre-1.3 vers une version 1.3 ou ultérieure, vous devrez
+supprimer manuellement le répertoire AdminIncludes du module, sinon des problèmes pourraient survenir lors de la configuration
+du module.  
+
 ### Utilisation
 
 Pour utiliser le module Payzen, vous devez tout d'abord le configurer. Pour ce faire, rendez-vous dans votre back-office, onglet Modules, et activez le module Payzen.
@@ -61,6 +65,9 @@ This module offers to your customers the Payzen payment system, operated by the 
 ### Installation
 
 To install the Payzen module, uncompress the archive in the `<thelia root>/local/modules` directory. Be sure that the name of the module's directory is `Payzen` (and not `Payzen-master`, for exemple).
+
+**Warning**: If you're updating by manually a pre-1.3 version to a 1.3.x version, be sure to remove the AdminIncludes directory, or you'll get
+ikssues in the module configuration.
 
 ### Usage
 

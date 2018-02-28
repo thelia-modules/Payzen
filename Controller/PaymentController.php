@@ -65,14 +65,10 @@ class PaymentController extends BasePaymentModuleController
         $this->getLog()->addInfo($this->getTranslator()->trans("Payzen platform request received for order ID %id.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
         if (null !== $order = $this->getOrder($order_id)) {
-
             // Check the authenticity of the request
             if ($payzenResponse->isAuthentified()) {
-
                 // Check payment status
-
                 if ($payzenResponse->isAcceptedPayment()) {
-
                     // Payment was accepted.
 
                     if ($order->isPaid()) {
@@ -89,14 +85,10 @@ class PaymentController extends BasePaymentModuleController
                     }
                 } else {
                     if ($payzenResponse->isCancelledPayment()) {
-
                         // Payment was canceled.
-
                         $this->cancelPayment($order_id);
                     } else {
-
                         // Payment was not accepted.
-
                         $this->getLog()->addError($this->getTranslator()->trans("Order ID %id payment failed.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
                         if ($order->isPaid()) {

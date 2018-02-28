@@ -1,3 +1,8 @@
+# 1.3.1
+
+- Email management fixes
+- Obsolete files are now automatically removed.
+
 # 1.3.0
 
 - Minimum Thelia version is now 2.3.0

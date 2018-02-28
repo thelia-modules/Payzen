@@ -30,8 +30,10 @@ use Payzen\Payzen\PayzenField;
 use Payzen\Payzen\PayzenMultiApi;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Propel;
+use Symfony\Component\Filesystem\Filesystem;
 use Thelia\Core\HttpFoundation\Response;
 use Thelia\Core\Translation\Translator;
+use Thelia\Exception\TheliaProcessException;
 use Thelia\Install\Database;
 use Thelia\Model\Base\CountryQuery;
 use Thelia\Model\ConfigQuery;
@@ -128,9 +130,37 @@ class Payzen extends AbstractPaymentModule
 
     public function update($currentVersion, $newVersion, ConnectionInterface $con = null)
     {
-        if (0 === version_compare($newVersion, '1.3.0')) {
+        if (0 === version_compare($newVersion, '1.3.1')) {
             PayzenConfigQuery::set('send_confirmation_message_only_if_paid', false);
             PayzenConfigQuery::set('send_payment_confirmation_message', true);
+
+            // Remove the AdminIncludes directory, and the unused files.
+            // @see https://github.com/thelia-modules/Payzen/issues/19
+            $fs = new Filesystem();
+
+            $filesToRemove = [
+                __DIR__ . "/AdminIncludes",
+                __DIR__ . "/templates/backOffice/default/payzen/form-field-template.html",
+                __DIR__ . "/I18n/AdminIncludes"
+            ];
+
+            try {
+                foreach ($filesToRemove as $file) {
+                    if ($fs->exists($file)) {
+                        $fs->remove($file);
+                    }
+                }
+            } catch (\Exception $ex) {
+                throw new TheliaProcessException(
+                    Translator::getInstance()->trans(
+                        "Failed to delete obsolete files. You shoud delete manually the following files and directories for the Payzen module to work properly: %files",
+                        [ 'files' => implode(", ", $filesToRemove) ]
+                    ),
+                    null,
+                    null,
+                    $ex
+                );
+            }
         }
 
         parent::update($currentVersion, $newVersion, $con);
@@ -165,6 +195,8 @@ class Payzen extends AbstractPaymentModule
      *
      * @param  Order $order processed order
      * @return Response the HTTP response
+     * @throws \Exception
+     * @throws \Propel\Runtime\Exception\PropelException
      */
     public function pay(Order $order)
     {
@@ -178,6 +210,8 @@ class Payzen extends AbstractPaymentModule
      * @param string $payment_mode the payment mode, either 'SINGLE' ou 'MULTI'
      * @param string $payment_mean, either SDD (SEPA) or bank cards list
      * @return Response the HTTP response
+     * @throws \Exception
+     * @throws \Propel\Runtime\Exception\PropelException
      */
     protected function doPay(Order $order, $payment_mode, $payment_mean = '')
     {
@@ -193,7 +227,13 @@ class Payzen extends AbstractPaymentModule
 
         // Be sure to have a valid platform URL, otherwise give up
         if (false === $platformUrl = PayzenConfigQuery::read('platform_url', false)) {
-            throw new \InvalidArgumentException(Translator::getInstance()->trans("The platform URL is not defined, please check Payzen module configuration.", [], Payzen::MODULE_DOMAIN));
+            throw new \InvalidArgumentException(
+                Translator::getInstance()->trans(
+                    "The platform URL is not defined, please check Payzen module configuration.",
+                    [],
+                    Payzen::MODULE_DOMAIN
+                )
+            );
         }
 
         return $this->generateGatewayFormResponse($order, $platformUrl, $html_params);
@@ -348,7 +388,7 @@ class Payzen extends AbstractPaymentModule
         $customer = $order->getCustomer();
 
         // Get customer lang code and locale
-        if (null !== $langObj = LangQuery::create()->findPk($customer->getLang())) {
+        if (null !== $langObj = LangQuery::create()->findPk($customer->getLangId())) {
             $customer_lang = $langObj->getCode();
             $locale        = $langObj->getLocale();
         } else {
@@ -382,10 +422,22 @@ class Payzen extends AbstractPaymentModule
             'vads_shop_name'      => ConfigQuery::read("store_name", ''),
 
             'vads_url_success'    => $this->getPaymentSuccessPageUrl($order->getId()),
-            'vads_url_refused'    => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("Your payment has been refused", [], Payzen::MODULE_DOMAIN)),
-            'vads_url_referral'   => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("Authorization request was rejected", [], Payzen::MODULE_DOMAIN)),
-            'vads_url_cancel'     => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("You canceled the payment", [], Payzen::MODULE_DOMAIN)),
-            'vads_url_error'      => $this->getPaymentFailurePageUrl($order->getId(), Translator::getInstance()->trans("An internal error occured", [], Payzen::MODULE_DOMAIN)),
+            'vads_url_refused'    => $this->getPaymentFailurePageUrl(
+                $order->getId(),
+                Translator::getInstance()->trans("Your payment has been refused", [], Payzen::MODULE_DOMAIN)
+            ),
+            'vads_url_referral'   => $this->getPaymentFailurePageUrl(
+                $order->getId(),
+                Translator::getInstance()->trans("Authorization request was rejected", [], Payzen::MODULE_DOMAIN)
+            ),
+            'vads_url_cancel'     => $this->getPaymentFailurePageUrl(
+                $order->getId(),
+                Translator::getInstance()->trans("You canceled the payment", [], Payzen::MODULE_DOMAIN)
+            ),
+            'vads_url_error'      => $this->getPaymentFailurePageUrl(
+                $order->getId(),
+                Translator::getInstance()->trans("An internal error occured", [], Payzen::MODULE_DOMAIN)
+            ),
 
             // User-defined configuration variables
 
