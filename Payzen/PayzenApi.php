@@ -34,6 +34,7 @@ namespace Payzen\Payzen;
 */
 use Payzen\Payzen;
 use Thelia\Core\Translation\Translator;
+use Payzen\Model\PayzenConfigQuery;
 
 /**
  * Class managing parameters checking, form and signature building, response analysis and more
@@ -1025,7 +1026,12 @@ class PayzenApi
             }
         }
         $signContent .= $key;
-        $sign = $hashed ? sha1($signContent) : $signContent;
+
+        if(PayzenConfigQuery::read('signature_algorythm', 'HMAC') == 'HMAC') {
+            $sign = $hashed ? base64_encode(hash_hmac('sha256', $signContent, $key, true)) : $signContent;
+        } else {
+            $sign = $hashed ? sha1($signContent) : $signContent;
+        }
         return $sign;
     }
 

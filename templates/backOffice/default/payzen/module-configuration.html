@@ -12,7 +12,7 @@
                 {form name="payzen.configuration.form"}
 
                 <form action="{url path="/admin/module/payzen/configure"}" method="post">
-                    {form_hidden_fields exclude="multi_minimum_amount,multi_maximum_amount,multi_first_payment,multi_number_of_payments"}
+                    {form_hidden_fields exclude="multi_minimum_amount,multi_maximum_amount,multi_first_payment,multi_number_of_payments,choozeo_minimum_amount,choozeo_maximum_amount"}
 
                     {include file = "includes/inner-form-toolbar.html"
                         hide_flags = true
@@ -36,6 +36,7 @@
                             {render_form_field field="test_certificate"}
                             {render_form_field field="production_certificate"}
                             {render_form_field field="platform_url"}
+                            {render_form_field field="signature_algorythm"}
                             {render_form_field field="mode"}
                             {render_form_field field="allowed_ip_list"}
 
@@ -60,21 +61,21 @@
                             {render_form_field field="allowed_cards"}
 
                             <p class="title title-without-tabs">{intl d='payzen.bo.default' l="One time payment"}</p>
-    
+
                             {custom_render_form_field field="minimum_amount"}
                                 <div class="input-group">
                                     <input type="number" {form_field_attributes field="minimum_amount"}>
                                     <span class="input-group-addon">{currency attr='symbol'}</span>
                                 </div>
                             {/custom_render_form_field}
-    
+
                             {custom_render_form_field field="maximum_amount"}
                                 <div class="input-group">
                                     <input type="number" {form_field_attributes field="maximum_amount"}>
                                     <span class="input-group-addon">{currency attr='symbol'}</span>
                                 </div>
                             {/custom_render_form_field}
-    
+
                             {custom_render_form_field field="three_ds_minimum_order_amount"}
                                 <div class="input-group">
                                     <input type="number" {form_field_attributes field="three_ds_minimum_order_amount"}>
@@ -92,37 +93,62 @@
                                         <span class="input-group-addon">{currency attr='symbol'}</span>
                                     </div>
                                 {/custom_render_form_field}
-    
+
                                 {custom_render_form_field field="multi_maximum_amount"}
                                     <div class="input-group">
                                         <input type="number" {form_field_attributes field="multi_maximum_amount"}>
                                         <span class="input-group-addon">{currency attr='symbol'}</span>
                                     </div>
                                 {/custom_render_form_field}
-    
+
                                 {custom_render_form_field field="multi_first_payment"}
                                     <div class="input-group">
                                         <input type="number" {form_field_attributes field="multi_first_payment"}>
                                         <span class="input-group-addon">%</span>
                                     </div>
                                 {/custom_render_form_field}
-                                
+
                                 {render_form_field field="multi_number_of_payments"}
                                 {render_form_field field="multi_payments_interval"}
                             {/loop}
-                            
+
                             {elseloop rel="multi-plugin-enabled"}
                                 <div class="alert alert-info">
                                     {intl l="Install and activate Payzen multiple times payment module to get configuration options." d='payzen.bo.default'}
                                 </div>
                             {/elseloop}
 
+                            <p class="title title-without-tabs">{intl d='payzen.bo.default' l="Choozeo multiple times payment"}</p>
+
+                            {loop name="choozeo-plugin-enabled" type="module" code="PayzenChoozeo" active="1"}
+                                {custom_render_form_field field="choozeo_minimum_amount"}
+                                    <div class="input-group">
+                                        <input type="number" {form_field_attributes field="choozeo_minimum_amount"}>
+                                        <span class="input-group-addon">{currency attr='symbol'}</span>
+                                    </div>
+                                {/custom_render_form_field}
+
+                                {custom_render_form_field field="choozeo_maximum_amount"}
+                                    <div class="input-group">
+                                        <input type="number" {form_field_attributes field="choozeo_maximum_amount"}>
+                                        <span class="input-group-addon">{currency attr='symbol'}</span>
+                                    </div>
+                                {/custom_render_form_field}
+
+                                {render_form_field field="choozeo_number_of_payments"}
+                            {/loop}
+
+                            {elseloop rel="choozeo-plugin-enabled"}
+                                <div class="alert alert-info">
+                                    {intl l="Install and activate PayzenChoozeo module to get configuration options." d='payzen.bo.default'}
+                                </div>
+                            {/elseloop}
                             <p class="title title-without-tabs">{intl d='payzen.bo.default' l="One off SEPA payment (SDD)"}</p>
 
                             {loop name="oneoffsepa-plugin-enabled" type="module" code="PayzenOneOffSEPA" active="1"}
                                 <p>{intl d="payzen.bo.default" l="No configuration needed"}.</p>
                             {/loop}
-                            
+
                             {elseloop rel="oneoffsepa-plugin-enabled"}
                             <div class="alert alert-info">
                                 {intl l="Install and activate 'Payzen One Off SEPA' module to get configuration options." d='payzen.bo.default'}
@@ -132,15 +158,15 @@
 
                         <div class="col-md-4">
                             <p class="title title-without-tabs">{intl d='payzen.bo.default' l="Email configuration"}</p>
-    
+
                             {render_form_field field="send_confirmation_message_only_if_paid"}
                             {render_form_field field="send_payment_confirmation_message"}
-    
+
                             <div class="well well-sm">
                                 <span class="glyphicon glyphicon-info-sign"></span>
                                 {intl d='payzen.bo.default' l='You can <a href="%url">edit the payment confirmation email</a> sent to the customer after a successful payment.' url={url path="/admin/configuration/messages"}}
                             </div>
-    
+
                             <p class="title title-without-tabs">{intl d='payzen.bo.default' l="Payment page"}</p>
 
                             {render_form_field field="default_language"}

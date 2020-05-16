@@ -1,7 +1,7 @@
 <?php
 /*************************************************************************************/
 /*                                                                                   */
-/*      Thelia	                                                                     */
+/*      Thelia                                                                       */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
 /*      email : info@thelia.net                                                      */
@@ -17,7 +17,7 @@
 /*      GNU General Public License for more details.                                 */
 /*                                                                                   */
 /*      You should have received a copy of the GNU General Public License            */
-/*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
+/*      along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
 
@@ -74,6 +74,10 @@ class ConfigurationForm extends BaseForm
         /** @var Module $multiModule */
         $multiEnabled = (null !== $multiModule = ModuleQuery::create()->findOneByCode('PayzenMulti')) && $multiModule->getActivate() != 0;
 
+        // If the Multi plugin is not enabled, all multi_fields are hidden
+        /** @var Module $multiModule */
+        $choozeoEnabled = (null !== $choozeoModule = ModuleQuery::create()->findOneByCode('PayzenChoozeo')) && $choozeoModule->getActivate() != 0;
+
         $this->formBuilder
             ->add(
                 'site_id',
@@ -114,6 +118,24 @@ class ConfigurationForm extends BaseForm
                     'label_attr' => array(
                         'for' => 'production_certificate',
                         'help' => $this->trans('The production certificate provided by the payment gateway')
+                    )
+                )
+            )
+            ->add(
+                'signature_algorythm',
+                'choice',
+                array(
+                    'choices' => array(
+                        'HMAC' => 'HMAC-SHA-256',
+                        'SHA1' => 'SHA1',
+                    ),
+                    'constraints' => array(new NotBlank()),
+                    'required' => true,
+                    'label' => $this->trans('Signature algorythm'),
+                    'data' => 'HMAC',
+                    'label_attr' => array(
+                        'for' => 'signature_algorythm',
+                        'help' => $this->trans('The algorythm used to compute the signature')
                     )
                 )
             )
@@ -517,6 +539,74 @@ class ConfigurationForm extends BaseForm
                         )
                     )
                 )
+            ;
+        }
+
+        if ($choozeoEnabled) {
+            $this->formBuilder
+                ->add(
+                    'choozeo_minimum_amount',
+                    'number',
+                    array(
+                        'constraints' => array(
+                            new NotBlank(),
+                            new GreaterThanOrEqual(array('value' => 0))
+                        ),
+                        'required' => true,
+                        'label' => $this->trans('Minimum order total for multiple times'),
+                        'data' => PayzenConfigQuery::read('choozeo_minimum_amount', 0),
+                        'label_attr' => array(
+                            'for' => 'choozeo_minimum_amount',
+                            'help' => $this->trans('Minimum order total in the default currency for which multiple times payment method is available. Enter 0 for no minimum')
+                        ),
+                        'attr' => [
+                            'step' => 'any'
+                        ]
+                    )
+                )
+                ->add(
+                    'choozeo_maximum_amount',
+                    'number',
+                    array(
+                        'constraints' => array(
+                            new NotBlank(),
+                            new GreaterThanOrEqual(array('value' => 0))
+                        ),
+                        'required' => true,
+                        'label' => $this->trans('Maximum order total for multiple times'),
+                        'data' => PayzenConfigQuery::read('choozeo_maximum_amount', 0),
+                        'label_attr' => array(
+                            'for' => 'choozeo_maximum_amount',
+                            'help' => $this->trans('Maximum order total in the default currency for which multiple times payment method is available. Enter 0 for no maximum')
+                        ),
+                        'attr' => [
+                            'step' => 'any'
+                        ]
+                    )
+                )
+                ->add(
+                    'choozeo_number_of_payments',
+                    'number',
+                    array(
+                        'constraints' => array(
+                            new NotBlank(),
+                            new GreaterThanOrEqual(array('value' => 3)),
+                            new LessThanOrEqual(array('value' => 4))
+                        ),
+                        'required' => true,
+                        'label' => $this->trans('Number of payments'),
+                        'data' => PayzenConfigQuery::read('choozeo_number_of_payments', 4),
+                        'label_attr' => array(
+                            'for' => 'choozeo_number_of_payments',
+                            'help' => $this->trans('The total number of payments')
+                        ),
+                        'attr' => [
+                            'min' => 3,
+                            'max' => 4
+                        ]
+                    )
+                )
+
             ;
         }
     }
