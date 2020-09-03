@@ -1,3 +1,8 @@
+# 1.3.2
+
+- Alphanumeric secret keys are now allowed.
+- Signature is now crypted using HMAC-SHA-256 instead of the deprecated SHA-1 algorithm.
+
 # 1.3.1
 
 - Email management fixes

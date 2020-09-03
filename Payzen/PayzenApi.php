@@ -870,11 +870,6 @@ class PayzenApi
      */
     function setCertificate($key, $mode)
     {
-        // Check format
-        if (!preg_match('#\d{16}#', $key)) {
-            return false;
-        }
-
         if ($mode == 'TEST') {
             $this->keyTest = $key;
         } elseif ($mode == 'PRODUCTION') {
@@ -1015,18 +1010,24 @@ class PayzenApi
      * @access public
      * @static
      */
-    function sign($parameters, $key, $hashed = true)
+    function sign($params, $key, $hashed = true)
     {
-        $signContent = "";
-        ksort($parameters);
-        foreach ($parameters as $name => $value) {
-            if (substr($name, 0, 5) == 'vads_') {
-                $signContent .= $value . '+';
+        $contenu_signature = "";
+
+        ksort($params);
+
+        foreach ($params as $nom => $valeur) {
+            //Récupération des champs vads_
+            if (substr($nom, 0, 5) === 'vads_') {
+                //Concaténation avec le séparateur "+"
+                $contenu_signature .= $valeur."+";
             }
         }
-        $signContent .= $key;
-        $sign = $hashed ? sha1($signContent) : $signContent;
-        return $sign;
+
+        $contenu_signature .= $key;
+
+        //Encodage base64 de la chaine chiffrée avec l'algorithme HMAC-SHA-256
+        return base64_encode(hash_hmac('sha256', $contenu_signature, $key, true));
     }
 
     // **************************************
