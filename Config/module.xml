@@ -13,13 +13,13 @@
         <language>en_US</language>
         <language>fr_FR</language>
     </languages>
-    <version>1.3.2</version>
+    <version>1.3.3</version>
     <authors>
         <author>
             <name>Franck Allimant</name>
-            <company>CQFDev</company>
-            <email>thelia@cqfdev.fr</email>
-            <website>www.cqfdev.fr</website>
+            <company>OpenStudio</company>
+            <email>fallimant@openstudio.fr</email>
+            <website>www.openstudio.fr</website>
         </author>
     </authors>
     <type>classic</type>
