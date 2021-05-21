@@ -39,6 +39,22 @@ use Thelia\Mailer\MailerFactory;
  */
 class SendConfirmationEmail extends BaseAction implements EventSubscriberInterface
 {
+    /** @var MailerFactory */
+    protected $mailer;
+
+    public function __construct(MailerFactory $mailer)
+    {
+        $this->mailer = $mailer;
+    }
+
+    /**
+     * @return \Thelia\Mailer\MailerFactory
+     */
+    public function getMailer()
+    {
+        return $this->mailer;
+    }
+
 
     /**
      * @param OrderEvent $event
@@ -67,13 +83,13 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
      *
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function updateStatus(OrderEvent $event, $eventName, EventDispatcherInterface $dispatcher, MailerFactory $mailerFactory)
+    public function updateStatus(OrderEvent $event, $eventName, EventDispatcherInterface $dispatcher)
     {
         $order = $event->getOrder();
 
         if ($order->isPaid() && $order->getPaymentModuleId() === Payzen::getModuleId()) {
             if (PayzenConfigQuery::read('send_payment_confirmation_message')) {
-                $mailerFactory->sendEmailToCustomer(
+                $this->getMailer()->sendEmailToCustomer(
                     Payzen::CONFIRMATION_MESSAGE_NAME,
                     $order->getCustomer(),
                     [
