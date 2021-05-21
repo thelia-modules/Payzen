@@ -27,30 +27,35 @@ use Payzen\Form\ConfigurationForm;
 use Payzen\Model\PayzenConfigQuery;
 use Payzen\Payzen;
 use Thelia\Controller\Admin\BaseAdminController;
+use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Form\Exception\FormValidationException;
 use Thelia\Tools\URL;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Payzen payment module
  *
+ * @Route("/admin/module/payzen/configure", name="payzen")
  * @author Franck Allimant <franck@cqfdev.fr>
  */
 class ConfigurationController extends BaseAdminController
 {
 
     /**
+     * @param Request $request
+     * @Route("", name="_configure")
      * @return mixed an HTTP response, or
      */
-    public function configure()
+    public function configure(Request $request)
     {
         if (null !== $response = $this->checkAuth(AdminResources::MODULE, 'Payzen', AccessManager::UPDATE)) {
             return $response;
         }
 
         // Create the Form from the request
-        $configurationForm = new ConfigurationForm($this->getRequest());
+        $configurationForm = $this->createForm(ConfigurationForm::getName());
 
         try {
             // Check the form against constraints violations
@@ -75,7 +80,7 @@ class ConfigurationController extends BaseAdminController
             );
 
             // Redirect to the success URL,
-            if ($this->getRequest()->get('save_mode') == 'stay') {
+            if ($request->get('save_mode') == 'stay') {
                 // If we have to stay on the same page, redisplay the configuration page/
                 $route = '/admin/module/Payzen';
             } else {

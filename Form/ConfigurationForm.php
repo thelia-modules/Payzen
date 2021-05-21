@@ -26,6 +26,11 @@ namespace Payzen\Form;
 use Payzen\Model\PayzenConfigQuery;
 use Payzen\Payzen\PayzenApi;
 use Payzen\Payzen;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -54,18 +59,18 @@ class ConfigurationForm extends BaseForm
         $available_languages = array();
 
         foreach ($api->getSupportedLanguages() as $code => $label) {
-            $available_languages[$code] = $this->trans($label);
+            $available_languages[$this->trans($label)] = $code;
         }
 
         $available_languages_combo = array_merge(
-            array("" => $this->trans("Please select...")),
+            array($this->trans("Please select...") => ""),
             $available_languages
         );
 
         asort($available_languages);
 
         foreach ($api->getSupportedCardTypes() as $code => $label) {
-            $available_cards[$code] = $this->trans($label);
+            $available_cards[$this->trans($label)] = $code;
         }
 
         asort($available_cards);
@@ -77,7 +82,7 @@ class ConfigurationForm extends BaseForm
         $this->formBuilder
             ->add(
                 'site_id',
-                'text',
+                TextType::class,
                 array(
                     'constraints' => array(new NotBlank()),
                     'required' => true,
@@ -91,7 +96,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'test_certificate',
-                'text',
+                TextType::class,
                 array(
                     'constraints' => array(new NotBlank()),
                     'required' => true,
@@ -105,7 +110,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'production_certificate',
-                'text',
+                TextType::class,
                 array(
                     'constraints' => array(new NotBlank()),
                     'required' => true,
@@ -119,7 +124,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'platform_url',
-                'text',
+                TextType::class,
                 array(
                     'constraints' => array(new NotBlank()),
                     'required' => true,
@@ -133,13 +138,13 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'mode',
-                'choice',
+                ChoiceType::class,
                 array(
                     'constraints' => array(new NotBlank()),
                     'required' => true,
                     'choices' => array(
-                        'TEST' => $this->trans('Test'),
-                        'PRODUCTION' => $this->trans('Production'),
+                        $this->trans('Test') => 'TEST',
+                        $this->trans('Production') => 'PRODUCTION',
                     ),
                     'label' => $this->trans('Operation Mode'),
                     'data' => PayzenConfigQuery::read('mode', 'TEST'),
@@ -151,7 +156,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'allowed_ip_list',
-                'textarea',
+                TextareaType::class,
                 array(
                     'required' => false,
                     'label' => $this->trans('Allowed IPs in test mode'),
@@ -168,7 +173,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'default_language',
-                'choice',
+                ChoiceType::class,
                 array(
                     'constraints' => array(new NotBlank()),
                     'required' => true,
@@ -183,7 +188,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'available_languages',
-                'choice',
+                ChoiceType::class,
                 array(
                     'required' => false,
                     'choices' => $available_languages,
@@ -201,7 +206,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'banking_delay',
-                'number',
+                NumberType::class,
                 array(
                     'constraints' => array(
                         new NotBlank(),
@@ -218,13 +223,13 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'validation_mode',
-                'choice',
+                ChoiceType::class,
                 array(
                     'required' => false,
                     'choices' => array(
-                        '' => $this->trans('Default'),
-                        '0' => $this->trans('Automatic'),
-                        '1' => $this->trans('Manual'),
+                        $this->trans('Default') => '',
+                        $this->trans('Automatic') => '0',
+                        $this->trans('Manual') => '1',
                     ),
                     'label' => $this->trans('Payment validation'),
                     'data' => PayzenConfigQuery::read('validation_mode', ''),
@@ -238,7 +243,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'allowed_cards',
-                'choice',
+                ChoiceType::class,
                 array(
                     'required' => false,
                     'choices' => $available_cards,
@@ -254,12 +259,12 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'redirect_enabled',
-                'choice',
+                ChoiceType::class,
                 array(
                     'required' => true,
                     'choices' => array(
-                        'False' => $this->trans('Disabled'),
-                        'True' => $this->trans('Enabled'),
+                        $this->trans('Disabled') => 'False',
+                        $this->trans('Enabled') => 'True',
                     ),
                     'label' => $this->trans('Automatic redirection after payment'),
                     'data' => PayzenConfigQuery::read('redirect_enabled', 'True'),
@@ -271,7 +276,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'success_timeout',
-                'number',
+                NumberType::class,
                 array(
                     'constraints' => array(
                         new NotBlank(),
@@ -290,7 +295,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'success_message',
-                'text',
+                TextType::class,
                 array(
                     'required' => false,
                     'label' => $this->trans('Success message'),
@@ -303,7 +308,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'failure_timeout',
-                'number',
+                NumberType::class,
                 array(
                     'constraints' => array(
                         new NotBlank(),
@@ -320,7 +325,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'failure_message',
-                'text',
+                TextType::class,
                 array(
                     'required' => false,
                     'label' => $this->trans('Failure message'),
@@ -333,7 +338,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'minimum_amount',
-                'number',
+                NumberType::class,
                 array(
                     'constraints' => array(
                         new NotBlank(),
@@ -353,7 +358,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'maximum_amount',
-                'number',
+                NumberType::class,
                 array(
                     'constraints' => array(
                         new NotBlank(),
@@ -373,7 +378,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'three_ds_minimum_order_amount',
-                'number',
+                NumberType::class,
                 array(
                     'constraints' => array(
                         new NotBlank(),
@@ -393,7 +398,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'send_confirmation_message_only_if_paid',
-                'checkbox',
+                CheckboxType::class,
                 [
                     'value' => 1,
                     'required' => false,
@@ -408,7 +413,7 @@ class ConfigurationForm extends BaseForm
             )
             ->add(
                 'send_payment_confirmation_message',
-                'checkbox',
+                CheckboxType::class,
                 [
                     'value' => 1,
                     'required' => false,
@@ -427,7 +432,7 @@ class ConfigurationForm extends BaseForm
             $this->formBuilder
                 ->add(
                     'multi_minimum_amount',
-                    'number',
+                    NumberType::class,
                     array(
                         'constraints' => array(
                             new NotBlank(),
@@ -447,7 +452,7 @@ class ConfigurationForm extends BaseForm
                 )
                 ->add(
                     'multi_maximum_amount',
-                    'number',
+                    NumberType::class,
                     array(
                         'constraints' => array(
                             new NotBlank(),
@@ -467,7 +472,7 @@ class ConfigurationForm extends BaseForm
                 )
                 ->add(
                     'multi_first_payment',
-                    'number',
+                    NumberType::class,
                     array(
                         'constraints' => array(
                             new NotBlank(),
@@ -488,7 +493,7 @@ class ConfigurationForm extends BaseForm
                 )
                 ->add(
                     'multi_number_of_payments',
-                    'number',
+                    NumberType::class,
                     array(
                         'constraints' => array(
                             new NotBlank(),
@@ -505,7 +510,7 @@ class ConfigurationForm extends BaseForm
                 )
                 ->add(
                     'multi_payments_interval',
-                    'number',
+                    NumberType::class,
                     array(
                         'constraints' => array(new NotBlank()),
                         'required' => true,
@@ -521,7 +526,7 @@ class ConfigurationForm extends BaseForm
         }
     }
 
-    public function getName()
+    public static function getName()
     {
         return 'payzen_configuration_form';
     }

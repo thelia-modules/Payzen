@@ -39,21 +39,6 @@ use Thelia\Mailer\MailerFactory;
  */
 class SendConfirmationEmail extends BaseAction implements EventSubscriberInterface
 {
-    /** @var MailerFactory */
-    protected $mailer;
-
-    public function __construct(MailerFactory $mailer)
-    {
-        $this->mailer = $mailer;
-    }
-
-    /**
-     * @return \Thelia\Mailer\MailerFactory
-     */
-    public function getMailer()
-    {
-        return $this->mailer;
-    }
 
     /**
      * @param OrderEvent $event
@@ -78,16 +63,17 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
      * @param OrderEvent $event
      * @param $eventName
      * @param EventDispatcherInterface $dispatcher
+     * @param MailerFactory $mailerFactory
      *
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function updateStatus(OrderEvent $event, $eventName, EventDispatcherInterface $dispatcher)
+    public function updateStatus(OrderEvent $event, $eventName, EventDispatcherInterface $dispatcher, MailerFactory $mailerFactory)
     {
         $order = $event->getOrder();
 
         if ($order->isPaid() && $order->getPaymentModuleId() === Payzen::getModuleId()) {
             if (PayzenConfigQuery::read('send_payment_confirmation_message')) {
-                $this->mailer->sendEmailToCustomer(
+                $mailerFactory->sendEmailToCustomer(
                     Payzen::CONFIRMATION_MESSAGE_NAME,
                     $order->getCustomer(),
                     [
@@ -99,7 +85,7 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
 
             // Send confirmation email if required.
             if (Payzen::getConfigValue('send_confirmation_message_only_if_paid')) {
-                $dispatcher->dispatch(TheliaEvents::ORDER_SEND_CONFIRMATION_EMAIL, $event);
+                $dispatcher->dispatch($event, TheliaEvents::ORDER_SEND_CONFIRMATION_EMAIL);
             }
         }
     }

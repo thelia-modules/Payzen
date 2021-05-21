@@ -30,6 +30,7 @@ use Payzen\Payzen\PayzenField;
 use Payzen\Payzen\PayzenMultiApi;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Propel;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
 use Thelia\Core\HttpFoundation\Response;
 use Thelia\Core\Translation\Translator;
@@ -76,7 +77,7 @@ class Payzen extends AbstractPaymentModule
      * @param ConnectionInterface|null $con
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function postActivation(ConnectionInterface $con = null)
+    public function postActivation(ConnectionInterface $con = null): void
     {
         // Once activated, create the module schema in the Thelia database.
         $database = new Database($con);
@@ -128,7 +129,7 @@ class Payzen extends AbstractPaymentModule
         }
     }
 
-    public function update($currentVersion, $newVersion, ConnectionInterface $con = null)
+    public function update($currentVersion, $newVersion, ConnectionInterface $con = null): void
     {
         if (0 === version_compare($newVersion, '1.3.1')) {
             PayzenConfigQuery::set('send_confirmation_message_only_if_paid', false);
@@ -171,7 +172,7 @@ class Payzen extends AbstractPaymentModule
      * @param bool $deleteModuleData
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function destroy(ConnectionInterface $con = null, $deleteModuleData = false)
+    public function destroy(ConnectionInterface $con = null, $deleteModuleData = false): void
     {
         // Delete config table and messages if required
         if ($deleteModuleData) {
@@ -490,5 +491,13 @@ class Payzen extends AbstractPaymentModule
         }
 
         return $payzenApi->getRequestFields();
+    }
+
+    public static function configureServices(ServicesConfigurator $servicesConfigurator): void
+    {
+        $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
+            ->exclude([THELIA_MODULE_DIR . ucfirst(self::getModuleCode()). "/I18n/*"])
+            ->autowire(true)
+            ->autoconfigure(true);
     }
 }

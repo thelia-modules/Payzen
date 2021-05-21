@@ -26,12 +26,15 @@ namespace Payzen\Controller;
 use Payzen\Model\PayzenConfigQuery;
 use Payzen\Payzen\PayzenResponse;
 use Payzen\Payzen;
+use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\HttpFoundation\Response;
 use Thelia\Module\BasePaymentModuleController;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Payzen payment module
  *
+ * @Route("payzen/callback", name="payzen_callback")
  * @author Franck Allimant <franck@cqfdev.fr>
  */
 class PaymentController extends BasePaymentModuleController
@@ -44,10 +47,11 @@ class PaymentController extends BasePaymentModuleController
     /**
      * Process a Payzen platform request
      *
+     * @Route("", name="_process")
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Exception
      */
-    public function processPayzenRequest()
+    public function processPayzenRequest(Request $request)
     {
         // The response code to the server
         $gateway_response_code = 'ko';
@@ -59,7 +63,6 @@ class PaymentController extends BasePaymentModuleController
             PayzenConfigQuery::read('production_certificate')
         );
 
-        $request = $this->getRequest();
         $order_id = intval($request->get('vads_order_id'));
 
         $this->getLog()->addInfo($this->getTranslator()->trans("Payzen platform request received for order ID %id.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
