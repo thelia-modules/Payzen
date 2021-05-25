@@ -48,15 +48,6 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
     }
 
     /**
-     * @return \Thelia\Mailer\MailerFactory
-     */
-    public function getMailer()
-    {
-        return $this->mailer;
-    }
-
-
-    /**
      * @param OrderEvent $event
      *
      * @throws \Exception if the message cannot be loaded.
@@ -89,7 +80,7 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
 
         if ($order->isPaid() && $order->getPaymentModuleId() === Payzen::getModuleId()) {
             if (PayzenConfigQuery::read('send_payment_confirmation_message')) {
-                $this->getMailer()->sendEmailToCustomer(
+                $this->mailer->sendEmailToCustomer(
                     Payzen::CONFIRMATION_MESSAGE_NAME,
                     $order->getCustomer(),
                     [
