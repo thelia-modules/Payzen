@@ -4,10 +4,10 @@
         xsi:schemaLocation="http://thelia.net/schema/dic/module http://thelia.net/schema/dic/module/module-2_2.xsd">
     <fullnamespace>Payzen\Payzen</fullnamespace>
     <descriptive locale="en_US">
-        <title>Pay with Payzen or SystemPay</title>
+        <title>Pay with Payzen</title>
     </descriptive>
     <descriptive locale="fr_FR">
-        <title>Payer avec Payzen ou SystemPay</title>
+        <title>Payer avec PayZen</title>
     </descriptive>
     <languages>
         <language>en_US</language>
