@@ -1186,25 +1186,4 @@ class PayzenApi
 
         return $result;
     }
-
-    /**
-     * PHP is not yet a sufficiently advanced technology to be indistinguishable from magic...
-     * so don't use magic_quotes, they mess up with the gateway response analysis.
-     *
-     * @param array $potentiallyMagicallyQuotedData
-     */
-    function uncharm($potentiallyMagicallyQuotedData)
-    {
-        if (get_magic_quotes_gpc()) {
-            $sane = array();
-            foreach ($potentiallyMagicallyQuotedData as $k => $v) {
-                $saneKey = stripslashes($k);
-                $saneValue = is_array($v) ? $this->uncharm($v) : stripslashes($v);
-                $sane[$saneKey] = $saneValue;
-            }
-        } else {
-            $sane = $potentiallyMagicallyQuotedData;
-        }
-        return $sane;
-    }
 }

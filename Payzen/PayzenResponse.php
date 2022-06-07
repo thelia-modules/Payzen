@@ -217,7 +217,6 @@ class PayzenResponse {
         if(is_null($parameters)) {
             $parameters = $_REQUEST;
         }
-        $parameters = $this->api->uncharm($parameters);
 
         // Load site credentials if provided
         if (!is_null($ctx_mode)) {
