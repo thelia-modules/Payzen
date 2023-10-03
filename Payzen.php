@@ -367,7 +367,7 @@ class Payzen extends AbstractPaymentModule
         $payzenApi = new PayzenMultiApi();
 
         // Total order amount
-        $amount = $order->getTotalAmount();
+        $amount = $this->getOrderPayTotalAmount($order);
 
         /** @var  PayzenCurrency $currency */
 
