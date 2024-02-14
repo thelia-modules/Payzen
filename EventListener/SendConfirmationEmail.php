@@ -91,7 +91,7 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
             }
 
             // Send confirmation email if required.
-            if (Payzen::getConfigValue('send_confirmation_message_only_if_paid')) {
+            if (PayzenConfigQuery::read('send_confirmation_message_only_if_paid')) {
                 $dispatcher->dispatch($event, TheliaEvents::ORDER_SEND_CONFIRMATION_EMAIL);
             }
         }
