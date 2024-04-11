@@ -22,7 +22,7 @@
             <website>www.openstudio.fr</website>
         </author>
     </authors>
-    <type>classic</type>
+    <type>payment</type>
     <thelia>2.5.0</thelia>
     <stability>prod</stability>
     <mandatory>0</mandatory>
