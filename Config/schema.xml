@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<database defaultIdMethod="native" name="TheliaMain" namespace="Payzen\Model">
-    <table name="payzen_config">
+<database defaultIdMethod="native" name="TheliaMain"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="../../../vendor/propel/propel/resources/xsd/database.xsd" >
+
+    <table name="payzen_config" namespace="Payzen\Model">
         <column name="name" required="true" size="128" type="VARCHAR" primaryKey="true"/>
         <column name="value" type="LONGVARCHAR" />
     </table>

@@ -2,12 +2,4 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <route id="payzen.configure" path="/admin/module/payzen/configure" methods="post">
-        <default key="_controller">Payzen\Controller\ConfigurationController::configure</default>
-    </route>
-
-    <route id="payzen.payment.confirmation" path="payzen/callback" methods="post">
-        <default key="_controller">Payzen\Controller\PaymentController::processPayzenRequest</default>
-    </route>
-
 </routes>

@@ -9,7 +9,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS `payzen_config`;
 
-CREATE TABLE IF NOT EXISTS `payzen_config`
+CREATE TABLE `payzen_config`
 (
     `name` VARCHAR(128) NOT NULL,
     `value` TEXT,

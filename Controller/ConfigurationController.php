@@ -23,31 +23,23 @@
 
 namespace Payzen\Controller;
 
+use Exception;
 use Payzen\Form\ConfigurationForm;
 use Payzen\Model\PayzenConfigQuery;
 use Payzen\Payzen;
+use Symfony\Component\Routing\Attribute\Route;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
+use Thelia\Core\Translation\Translator;
 use Thelia\Form\Exception\FormValidationException;
 use Thelia\Tools\URL;
-use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * Payzen payment module
- *
- * @Route("/admin/module/payzen/configure", name="payzen")
- * @author Franck Allimant <franck@cqfdev.fr>
- */
+#[Route('/admin/module/Payzen', name: 'payzen_configuration_')]
 class ConfigurationController extends BaseAdminController
 {
-
-    /**
-     * @param Request $request
-     * @Route("", name="_configure")
-     * @return mixed an HTTP response, or
-     */
+    #[Route('/configure', name: 'configure', methods: ['POST'])]
     public function configure(Request $request)
     {
         if (null !== $response = $this->checkAuth(AdminResources::MODULE, 'Payzen', AccessManager::UPDATE)) {
@@ -58,7 +50,7 @@ class ConfigurationController extends BaseAdminController
         $configurationForm = $this->createForm(ConfigurationForm::getName());
 
         try {
-            // Check the form against constraints violations
+            // Check the form against constraint violations
             $form = $this->validateForm($configurationForm, "POST");
 
             // Get the form field values
@@ -76,11 +68,11 @@ class ConfigurationController extends BaseAdminController
             $this->adminLogAppend(
                 "payzen.configuration.message",
                 AccessManager::UPDATE,
-                sprintf("Payzen configuration updated")
+                "Payzen configuration updated"
             );
 
             // Redirect to the success URL,
-            if ($request->get('save_mode') == 'stay') {
+            if ($request->get('save_mode') === 'stay') {
                 // If we have to stay on the same page, redisplay the configuration page/
                 $route = '/admin/module/Payzen';
             } else {
@@ -92,19 +84,19 @@ class ConfigurationController extends BaseAdminController
 
             // An exit is performed after redirect.+
         } catch (FormValidationException $ex) {
-            // Form cannot be validated. Create the error message using
+            // The Form cannot be validated. Create the error message using
             // the BaseAdminController helper method.
             $error_msg = $this->createStandardFormValidationErrorMessage($ex);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             // Any other error
              $error_msg = $ex->getMessage();
         }
 
-        // At this point, the form has errors, and should be redisplayed. We don not redirect,
+        // At this point, the form has errors, and should be redisplayed. We do not redirect,
         // just redisplay the same template.
-        // Setup the Form error context, to make error information available in the template.
+        // Set up the Form error context to make error information available in the template.
         $this->setupFormErrorContext(
-            $this->getTranslator()->trans("Payzen configuration", [], Payzen::MODULE_DOMAIN),
+            Translator::getInstance()->trans("Payzen configuration", [], Payzen::MODULE_DOMAIN),
             $error_msg,
             $configurationForm,
             $ex

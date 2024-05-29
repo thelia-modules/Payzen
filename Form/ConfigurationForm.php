@@ -46,12 +46,12 @@ use Thelia\Model\Module;
  */
 class ConfigurationForm extends BaseForm
 {
-    protected function trans($str, $params = [])
+    protected function trans($str, $params = []): string
     {
         return Translator::getInstance()->trans($str, $params, Payzen::MODULE_DOMAIN);
     }
 
-    protected function buildForm()
+    protected function buildForm(): void
     {
         $api = new PayzenApi();
 
@@ -77,7 +77,7 @@ class ConfigurationForm extends BaseForm
 
         // If the Multi plugin is not enabled, all multi_fields are hidden
         /** @var Module $multiModule */
-        $multiEnabled = (null !== $multiModule = ModuleQuery::create()->findOneByCode('PayzenMulti')) && $multiModule->getActivate() != 0;
+        $multiEnabled = (null !== $multiModule = ModuleQuery::create()->findOneByCode('PayzenMulti')) && $multiModule->getActivate() !== 0;
 
         $this->formBuilder
             ->add(
@@ -403,7 +403,7 @@ class ConfigurationForm extends BaseForm
                     'value' => 1,
                     'required' => false,
                     'label' => $this->trans('Send order confirmation on payment success'),
-                    'data' => boolval(PayzenConfigQuery::read('send_confirmation_message_only_if_paid', true)),
+                    'data' => (bool)PayzenConfigQuery::read('send_confirmation_message_only_if_paid', true),
                     'label_attr' => [
                         'help' => $this->trans(
                             'If checked, the order confirmation message is sent to the customer only when the payment is successful. The order notification is always sent to the shop administrator'
@@ -418,7 +418,7 @@ class ConfigurationForm extends BaseForm
                     'value' => 1,
                     'required' => false,
                     'label' => $this->trans('Send a payment confirmation e-mail'),
-                    'data' => boolval(PayzenConfigQuery::read('send_payment_confirmation_message', true)),
+                    'data' => (bool)PayzenConfigQuery::read('send_payment_confirmation_message', true),
                     'label_attr' => [
                         'help' => $this->translator->trans(
                             'If checked, a payment confirmation e-mail is sent to the customer.'
@@ -524,10 +524,5 @@ class ConfigurationForm extends BaseForm
                 )
             ;
         }
-    }
-
-    public static function getName()
-    {
-        return 'payzen_configuration_form';
     }
 }

@@ -9,9 +9,9 @@
         <div class="form-container">
             <div class="row">
                 <div class="col-md-12">
-                {form name="payzen.configuration.form"}
+                {form name="payzen_form_configuration_form"}
 
-                <form action="{url path="/admin/module/payzen/configure"}" method="post">
+                <form action="{url path="/admin/module/Payzen/configure"}" method="post">
                     {form_hidden_fields exclude="multi_minimum_amount,multi_maximum_amount,multi_first_payment,multi_number_of_payments"}
 
                     {include file = "includes/inner-form-toolbar.html"
@@ -155,6 +155,7 @@
                     </div>
                 </form>
                 {/form}
+                </div>
             </div>
         </div>
     </div>

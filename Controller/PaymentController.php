@@ -23,37 +23,32 @@
 
 namespace Payzen\Controller;
 
+use Exception;
 use Payzen\Model\PayzenConfigQuery;
 use Payzen\Payzen\PayzenResponse;
 use Payzen\Payzen;
+use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Attribute\Route;
 use Thelia\Core\HttpFoundation\Response;
 use Thelia\Core\Translation\Translator;
 use Thelia\Module\BasePaymentModuleController;
-use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * Payzen payment module
- *
- * @Route("/payzen/callback", name="payzen_callback")
- * @author Franck Allimant <franck@cqfdev.fr>
- */
+#[Route('/payzen', name: 'payzen_payment_')]
 class PaymentController extends BasePaymentModuleController
 {
-    protected function getModuleCode()
+    protected function getModuleCode(): string
     {
         return "Payzen";
     }
 
     /**
-     * Process a Payzen platform request
-     *
-     * @Route("", name="_process")
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Exception
+     * @throws PropelException
+     * @throws Exception
      */
-    public function processPayzenRequest(Request $request, EventDispatcherInterface $eventDispatcher)
+    #[Route('/callback', name: 'process', methods: ['POST'])]
+    public function processPayzenRequest(Request $request, EventDispatcherInterface $eventDispatcher): Response
     {
         // The response code to the server
         $gateway_response_code = 'ko';
@@ -65,7 +60,7 @@ class PaymentController extends BasePaymentModuleController
             PayzenConfigQuery::read('production_certificate')
         );
 
-        $order_id = intval($request->get('vads_order_id'));
+        $order_id = (int)$request->get('vads_order_id');
 
         $this->getLog()->addInfo(Translator::getInstance()->trans("Payzen platform request received for order ID %id.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
@@ -88,23 +83,21 @@ class PaymentController extends BasePaymentModuleController
 
                         $gateway_response_code = 'payment_ok';
                     }
+                } else if ($payzenResponse->isCancelledPayment()) {
+                    // Payment was canceled.
+                    $this->cancelPayment($eventDispatcher, $order_id);
                 } else {
-                    if ($payzenResponse->isCancelledPayment()) {
-                        // Payment was canceled.
-                        $this->cancelPayment($eventDispatcher, $order_id);
-                    } else {
-                        // Payment was not accepted.
-                        $this->getLog()->addError(Translator::getInstance()->trans("Order ID %id payment failed.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
+                    // Payment was not accepted.
+                    $this->getLog()->addError(Translator::getInstance()->trans("Order ID %id payment failed.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
-                        if ($order->isPaid()) {
-                            $gateway_response_code = 'payment_ko_already_done';
-                        } else {
-                            $gateway_response_code = 'payment_ko';
-                        }
+                    if ($order->isPaid()) {
+                        $gateway_response_code = 'payment_ko_already_done';
+                    } else {
+                        $gateway_response_code = 'payment_ko';
                     }
                 }
             } else {
-                $this->getLog()->addError(Translator::getInstance()->trans("Response could not be authentified."));
+                $this->getLog()->addError(Translator::getInstance()->trans("Response could not be authenticated."));
 
                 $gateway_response_code = 'auth_fail';
             }
@@ -112,7 +105,7 @@ class PaymentController extends BasePaymentModuleController
             $gateway_response_code = 'order_not_found';
         }
 
-        $this->getLog()->info(Translator::getInstance()->trans("Payzen platform request for order ID %id processing teminated.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
+        $this->getLog()->info(Translator::getInstance()->trans("Payzen platform request for order ID %id processing terminated.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
         return new Response($payzenResponse->getOutputForGateway($gateway_response_code));
     }

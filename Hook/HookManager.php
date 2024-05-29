@@ -32,10 +32,22 @@ use Thelia\Core\Hook\BaseHook;
 
 class HookManager extends BaseHook
 {
-    public function onModuleConfigure(HookRenderEvent $event)
+    public function onModuleConfigure(HookRenderEvent $event): void
     {
         $event->add(
             $this->render('payzen/module-configuration.html')
         );
+    }
+
+    public static function getSubscribedHooks(): array
+    {
+        return [
+            "module.configuration" => [
+                [
+                    "type" => "back",
+                    "method" => "onModuleConfigure"
+                ],
+            ]
+        ];
     }
 }

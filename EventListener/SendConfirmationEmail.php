@@ -23,8 +23,10 @@
 
 namespace Payzen\EventListener;
 
+use Exception;
 use Payzen\Model\PayzenConfigQuery;
 use Payzen\Payzen;
+use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Thelia\Action\BaseAction;
@@ -40,7 +42,7 @@ use Thelia\Mailer\MailerFactory;
 class SendConfirmationEmail extends BaseAction implements EventSubscriberInterface
 {
     /** @var MailerFactory */
-    protected $mailer;
+    protected MailerFactory $mailer;
 
     public function __construct(MailerFactory $mailer)
     {
@@ -50,31 +52,29 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
     /**
      * @param OrderEvent $event
      *
-     * @throws \Exception if the message cannot be loaded.
+     * @throws Exception if the message cannot be loaded.
      */
-    public function sendConfirmationEmail(OrderEvent $event)
+    public function sendConfirmationEmail(OrderEvent $event): void
     {
         if (PayzenConfigQuery::read('send_confirmation_message_only_if_paid')) {
             // We send the order confirmation email only if the order is paid
             $order = $event->getOrder();
 
-            if (! $order->isPaid() && $order->getPaymentModuleId() == Payzen::getModuleId()) {
+            if (! $order->isPaid() && $order->getPaymentModuleId() === (int)Payzen::getModuleId()) {
                 $event->stopPropagation();
             }
         }
     }
 
     /**
-     * Checks if order payment module is paypal and if order new status is paid, send an email to the customer.
+     * Checks if order payment module is PayPal and if order new status is paid, email the customer.
      *
      * @param OrderEvent $event
      * @param $eventName
      * @param EventDispatcherInterface $dispatcher
-     * @param MailerFactory $mailerFactory
-     *
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
      */
-    public function updateStatus(OrderEvent $event, $eventName, EventDispatcherInterface $dispatcher)
+    public function updateStatus(OrderEvent $event, $eventName, EventDispatcherInterface $dispatcher): void
     {
         $order = $event->getOrder();
 
@@ -97,7 +97,7 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
         }
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return array(
             TheliaEvents::ORDER_UPDATE_STATUS           => array("updateStatus", 128),
