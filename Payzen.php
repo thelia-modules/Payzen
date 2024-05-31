@@ -23,12 +23,15 @@
 
 namespace Payzen;
 
+use Exception;
+use InvalidArgumentException;
 use Payzen\Model\Map\PayzenConfigTableMap;
 use Payzen\Model\PayzenConfigQuery;
 use Payzen\Payzen\PayzenCurrency;
 use Payzen\Payzen\PayzenField;
 use Payzen\Payzen\PayzenMultiApi;
 use Propel\Runtime\Connection\ConnectionInterface;
+use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Propel;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
@@ -53,18 +56,18 @@ use Thelia\Module\AbstractPaymentModule;
  */
 class Payzen extends AbstractPaymentModule
 {
-    /** The module domain for internationalisation */
-    const MODULE_DOMAIN = "payzen";
+    /** The module domain for internationalization */
+    public const MODULE_DOMAIN = "payzen";
 
     /**
      * The confirmation message identifier
      */
-    const CONFIRMATION_MESSAGE_NAME = 'payzen_payment_confirmation';
+    public const CONFIRMATION_MESSAGE_NAME = 'payzen_payment_confirmation';
 
-    /** @var Translator $translator */
-    protected $translator;
+    /** @var ?Translator $translator */
+    protected ?Translator $translator;
 
-    protected function trans($id, $locale, $parameters = [])
+    protected function trans($id, $locale, $parameters = []): string
     {
         if ($this->translator === null) {
             $this->translator = Translator::getInstance();
@@ -75,7 +78,8 @@ class Payzen extends AbstractPaymentModule
 
     /**
      * @param ConnectionInterface|null $con
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
+     * @throws Exception
      */
     public function postActivation(ConnectionInterface $con = null): void
     {
@@ -84,14 +88,13 @@ class Payzen extends AbstractPaymentModule
 
         try {
             PayzenConfigQuery::create()->findOne();
-        } catch (\Exception $e) {
+        } catch (Exception) {
             $database->insertSql(null, array(
                 __DIR__ . DS . 'Config'.DS.'thelia.sql' // The module schema
             ));
         }
 
         $languages = LangQuery::create()->find();
-
 
         if (null === MessageQuery::create()->findOneByName(self::CONFIRMATION_MESSAGE_NAME)) {
             $message = new Message();
@@ -124,7 +127,7 @@ class Payzen extends AbstractPaymentModule
         /* Deploy the module's image */
         $module = $this->getModuleModel();
 
-        if (ModuleImageQuery::create()->filterByModule($module)->count() == 0) {
+        if (ModuleImageQuery::create()->filterByModule($module)->count() === 0) {
             $this->deployImageFolder($module, sprintf('%s/images', __DIR__), $con);
         }
     }
@@ -151,10 +154,10 @@ class Payzen extends AbstractPaymentModule
                         $fs->remove($file);
                     }
                 }
-            } catch (\Exception $ex) {
+            } catch (Exception $ex) {
                 throw new TheliaProcessException(
                     Translator::getInstance()->trans(
-                        "Failed to delete obsolete files. You shoud delete manually the following files and directories for the Payzen module to work properly: %files",
+                        "Failed to delete obsolete files. You should delete manually the following files and directories for the Payzen module to work properly: %files",
                         [ 'files' => implode(", ", $filesToRemove) ]
                     ),
                     null,
@@ -170,7 +173,7 @@ class Payzen extends AbstractPaymentModule
     /**
      * @param ConnectionInterface|null $con
      * @param bool $deleteModuleData
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
      */
     public function destroy(ConnectionInterface $con = null, $deleteModuleData = false): void
     {
@@ -180,7 +183,7 @@ class Payzen extends AbstractPaymentModule
 
             $database->execute("DROP TABLE ?", PayzenConfigTableMap::TABLE_NAME);
 
-            MessageQuery::create()->findOneByName(self::CONFIRMATION_MESSAGE_NAME)->delete();
+            MessageQuery::create()->findOneByName(self::CONFIRMATION_MESSAGE_NAME)?->delete();
         }
     }
 
@@ -188,7 +191,7 @@ class Payzen extends AbstractPaymentModule
      *
      *  Method used by payment gateway.
      *
-     *  If this method return a \Thelia\Core\HttpFoundation\Response instance, this response is sent to the
+     *  If this method returns a \Thelia\Core\HttpFoundation\Response instance, this response is sent to the
      *  browser.
      *
      *  In many cases, it's necessary to send a form to the payment gateway. On your response you can return this form already
@@ -196,10 +199,10 @@ class Payzen extends AbstractPaymentModule
      *
      * @param  Order $order processed order
      * @return Response the HTTP response
-     * @throws \Exception
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws Exception
+     * @throws PropelException
      */
-    public function pay(Order $order)
+    public function pay(Order $order): Response
     {
         return $this->doPay($order, 'SINGLE');
     }
@@ -211,10 +214,10 @@ class Payzen extends AbstractPaymentModule
      * @param string $payment_mode the payment mode, either 'SINGLE' ou 'MULTI'
      * @param string $payment_mean, either SDD (SEPA) or bank cards list
      * @return Response the HTTP response
-     * @throws \Exception
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws Exception
+     * @throws PropelException
      */
-    protected function doPay(Order $order, $payment_mode, $payment_mean = '')
+    protected function doPay(Order $order, string $payment_mode, string $payment_mean = ''): Response
     {
         $payzen_params = $this->getPayzenParameters($order, $payment_mode, $payment_mean);
 
@@ -228,11 +231,11 @@ class Payzen extends AbstractPaymentModule
 
         // Be sure to have a valid platform URL, otherwise give up
         if (false === $platformUrl = PayzenConfigQuery::read('platform_url', false)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 Translator::getInstance()->trans(
                     "The platform URL is not defined, please check Payzen module configuration.",
                     [],
-                    Payzen::MODULE_DOMAIN
+                    self::MODULE_DOMAIN
                 )
             );
         }
@@ -243,14 +246,14 @@ class Payzen extends AbstractPaymentModule
     /**
      * @return boolean true to allow usage of this payment module, false otherwise.
      */
-    public function isValidPayment()
+    public function isValidPayment() :bool
     {
         $valid = false;
 
         $mode = PayzenConfigQuery::read('mode', false);
 
         // If we're in test mode, do not display Payzen on the front office, except for allowed IP addresses.
-        if ('TEST' == $mode) {
+        if ('TEST' === $mode) {
             $raw_ips = explode("\n", PayzenConfigQuery::read('allowed_ip_list', ''));
 
             $allowed_client_ips = array();
@@ -261,13 +264,13 @@ class Payzen extends AbstractPaymentModule
 
             $client_ip = $this->getRequest()->getClientIp();
 
-            $valid = in_array($client_ip, $allowed_client_ips);
-        } elseif ('PRODUCTION' == $mode) {
+            $valid = in_array($client_ip, $allowed_client_ips, true);
+        } elseif ('PRODUCTION' === $mode) {
             $valid = true;
         }
 
         if ($valid) {
-            // Check if total order amount is in the module's limits
+            // Check if the total order amount is in the module's limits
             $valid = $this->checkMinMaxAmount();
         }
 
@@ -275,14 +278,14 @@ class Payzen extends AbstractPaymentModule
     }
 
     /**
-     * Check if total order amount is in the module's limits
+     * Check if the total order amount is in the module's limits
      *
      * @return bool true if the current order total is within the min and max limits
      */
-    protected function checkMinMaxAmount()
+    protected function checkMinMaxAmount(): bool
     {
 
-        // Check if total order amount is in the module's limits
+        // Check if the total order amount is in the module's limits
         $order_total = $this->getCurrentOrderTotalAmount();
 
         $min_amount = PayzenConfigQuery::read('minimum_amount', 0);
@@ -295,17 +298,17 @@ class Payzen extends AbstractPaymentModule
      * Returns the vads transaction id, that should be unique during the current day,
      * and should be 6 numeric characters between 000000 and 899999
      *
-     * @return string the transaction ID
-     * @throws \Exception an exception if something goes wrong.
+     * @return string|null the transaction ID
+     * @throws Exception an exception if something goes wrong.
      */
-    protected function getTransactionId()
+    protected function getTransactionId(): ?string
     {
         $con = Propel::getWriteConnection(PayzenConfigTableMap::DATABASE_NAME);
 
         $con->beginTransaction();
 
         try {
-            $trans_id = intval(PayzenConfigQuery::read('next_transaction_id', 1));
+            $trans_id = (int)PayzenConfigQuery::read('next_transaction_id', 1);
 
             $next_trans_id = 1 + $trans_id;
 
@@ -318,7 +321,7 @@ class Payzen extends AbstractPaymentModule
             $con->commit();
 
             return sprintf("%06d", $trans_id);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $con->rollback();
 
             throw $ex;
@@ -333,14 +336,14 @@ class Payzen extends AbstractPaymentModule
      * @param PayzenCurrency $currency
      * @return string the value for vads_payment_config parameter
      */
-    protected function getPaymentConfigValue($payment_config, $orderAmount, $currency)
+    protected function getPaymentConfigValue(string $payment_config, float $orderAmount, PayzenCurrency $currency): string
     {
-        if ('MULTI' == $payment_config) {
+        if ('MULTI' === $payment_config) {
             $first    = $currency->convertAmountToInteger(($orderAmount*PayzenConfigQuery::read('multi_first_payment', 0))/100);
             $count    = PayzenConfigQuery::read('multi_number_of_payments', 4);
             $interval = PayzenConfigQuery::read('multi_payments_interval', 30);
 
-            if ($first == 0) {
+            if ($first === 0) {
                 $first = $currency->convertAmountToInteger($orderAmount / $count);
             }
 
@@ -357,12 +360,12 @@ class Payzen extends AbstractPaymentModule
      * @param string $payment_config single or multiple payment - see vads_payment_config parameter description
      * @param string $payment_mean SEPA or bank card - see vads_payment_cards parameter description
      *
-     * @throws \InvalidArgumentException if an unsupported currency is used in order
      * @return array the payzen form parameters
-     * @throws \Exception
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws InvalidArgumentException if an unsupported currency is used in order
+     * @throws Exception
+     * @throws PropelException
      */
-    protected function getPayzenParameters(Order $order, $payment_config, $payment_mean)
+    protected function getPayzenParameters(Order $order, string $payment_config, string $payment_mean): array
     {
         $payzenApi = new PayzenMultiApi();
 
@@ -373,18 +376,17 @@ class Payzen extends AbstractPaymentModule
 
         // Currency conversion to numeric ISO 1427 code
         if (null === $currency = $payzenApi->findCurrencyByAlphaCode($order->getCurrency()->getCode())) {
-            throw new \InvalidArgumentException(Translator::getInstance()->trans(
+            throw new InvalidArgumentException(Translator::getInstance()->trans(
                 "Unsupported order currency: '%code'",
                 array('%code' => $order->getCurrency()->getCode()),
-                Payzen::MODULE_DOMAIN
+                self::MODULE_DOMAIN
             ));
         }
 
         // Check payment mean
         if ($payment_mean !== 'SDD') {
-            $payment_mean = PayzenConfigQuery::read('allowed_cards');
+            $payment_mean = PayzenConfigQuery::read('allowed_cards') ?? "";
         }
-
 
         $customer = $order->getCustomer();
 
@@ -394,12 +396,12 @@ class Payzen extends AbstractPaymentModule
             $locale        = $langObj->getLocale();
         } else {
             $customer_lang = PayzenConfigQuery::read('default_language');
-            $locale        = LangQuery::create()->findOneByByDefault(true)->getLocale();
+            $locale        = LangQuery::create()->findOneByByDefault(true)?->getLocale();
         }
 
         $address = $customer->getDefaultAddress();
 
-        // Customer phone (first non empty)
+        // Customer phone (first non-empty)
         $phone = $address->getPhone();
         if (empty($phone)) {
             $phone = $address->getCellphone();
@@ -425,19 +427,19 @@ class Payzen extends AbstractPaymentModule
             'vads_url_success'    => $this->getPaymentSuccessPageUrl($order->getId()),
             'vads_url_refused'    => $this->getPaymentFailurePageUrl(
                 $order->getId(),
-                Translator::getInstance()->trans("Your payment has been refused", [], Payzen::MODULE_DOMAIN)
+                Translator::getInstance()->trans("Your payment has been refused", [], self::MODULE_DOMAIN)
             ),
             'vads_url_referral'   => $this->getPaymentFailurePageUrl(
                 $order->getId(),
-                Translator::getInstance()->trans("Authorization request was rejected", [], Payzen::MODULE_DOMAIN)
+                Translator::getInstance()->trans("Authorization request was rejected", [], self::MODULE_DOMAIN)
             ),
             'vads_url_cancel'     => $this->getPaymentFailurePageUrl(
                 $order->getId(),
-                Translator::getInstance()->trans("You canceled the payment", [], Payzen::MODULE_DOMAIN)
+                Translator::getInstance()->trans("You canceled the payment", [], self::MODULE_DOMAIN)
             ),
             'vads_url_error'      => $this->getPaymentFailurePageUrl(
                 $order->getId(),
-                Translator::getInstance()->trans("An internal error occured", [], Payzen::MODULE_DOMAIN)
+                Translator::getInstance()->trans("An internal error occurred", [], self::MODULE_DOMAIN)
             ),
 
             // User-defined configuration variables
@@ -463,7 +465,7 @@ class Payzen extends AbstractPaymentModule
             // Order related configuration variables
 
             'vads_language'    => $customer_lang,
-            'vads_order_id'    => $order->getId(), // Do not change this, as the callback use it to find the order
+            'vads_order_id'    => $order->getId(), // Do not change this, as the callback uses it to find the order
             'vads_currency'    => $currency->num,
             'vads_amount'      => $currency->convertAmountToInteger($amount),
             'vads_trans_id'    => $transaction_id,
@@ -482,7 +484,7 @@ class Payzen extends AbstractPaymentModule
             'vads_cust_address'    => trim($address->getAddress1() . ' ' . $address->getAddress2() . ' ' . $address->getAddress3()),
             'vads_cust_city'       => $address->getCity(),
             'vads_cust_zip'        => $address->getZipcode(),
-            'vads_cust_country'    => CountryQuery::create()->findPk($address->getCountryId())->getIsoalpha2(),
+            'vads_cust_country'    => CountryQuery::create()->findPk($address->getCountryId())?->getIsoalpha2(),
             'vads_cust_phone'      => $phone,
         );
 
@@ -497,7 +499,7 @@ class Payzen extends AbstractPaymentModule
     {
         $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
             ->exclude([THELIA_MODULE_DIR . ucfirst(self::getModuleCode()). "/I18n/*"])
-            ->autowire(true)
-            ->autoconfigure(true);
+            ->autowire()
+            ->autoconfigure();
     }
 }
