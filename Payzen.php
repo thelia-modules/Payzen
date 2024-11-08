@@ -65,7 +65,7 @@ class Payzen extends AbstractPaymentModule
     public const CONFIRMATION_MESSAGE_NAME = 'payzen_payment_confirmation';
 
     /** @var ?Translator $translator */
-    protected ?Translator $translator;
+    protected ?Translator $translator = null;
 
     protected function trans($id, $locale, $parameters = []): string
     {
@@ -90,7 +90,7 @@ class Payzen extends AbstractPaymentModule
             PayzenConfigQuery::create()->findOne();
         } catch (Exception) {
             $database->insertSql(null, array(
-                __DIR__ . DS . 'Config'.DS.'thelia.sql' // The module schema
+                __DIR__ . DS . 'Config'.DS.'TheliaMain.sql' // The module schema
             ));
         }
 
