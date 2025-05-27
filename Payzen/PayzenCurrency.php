@@ -13,6 +13,7 @@ class PayzenCurrency {
     }
 
     function convertAmountToInteger($float) {
+        $float = round($float, $this->decimals);
         $coef = pow(10, $this->decimals);
 
         return intval(strval($float * $coef));
