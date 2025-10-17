@@ -34,6 +34,8 @@ namespace Payzen\Payzen;
 */
 use Payzen\Payzen;
 use Thelia\Core\Translation\Translator;
+use Thelia\Exception\TheliaProcessException;
+use function Symfony\Component\String\b;
 
 /**
  * Class managing parameters checking, form and signature building, response analysis and more
@@ -1026,8 +1028,19 @@ class PayzenApi
 
         $contenu_signature .= $key;
 
-        //Encodage base64 de la chaine chiffrée avec l'algorithme HMAC-SHA-256
-        return base64_encode(hash_hmac('sha256', $contenu_signature, $key, true));
+        // Encodage de la chaine chiffrée avec l'algorithme choisi (HMAC-SHA-256 conseillé)
+        switch (Payzen::getConfigValue('signature_algorithm')) {
+            case 'SHA-1' :
+                $signature = sha1($contenu_signature);
+                break;
+            case 'HMAC-SHA-256' :
+                $signature = base64_encode(hash_hmac('sha256', $contenu_signature, $key, true));
+                break;
+            default :
+                throw new TheliaProcessException("Invalid signature algorithm, please check Payzen module configuration");
+        }
+
+        return $signature;
     }
 
     // **************************************
