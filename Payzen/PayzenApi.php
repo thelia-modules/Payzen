@@ -32,6 +32,8 @@ namespace Payzen\Payzen;
 * @copyright www.lyra-network.com
 * PHP classes to integrate an e-commerce solution with the payment platform supported by lyra-network.
 */
+
+use Payzen\Model\PayzenConfigQuery;
 use Payzen\Payzen;
 use Thelia\Core\Translation\Translator;
 use Thelia\Exception\TheliaProcessException;
@@ -1029,18 +1031,11 @@ class PayzenApi
         $contenu_signature .= $key;
 
         // Encodage de la chaine chiffrée avec l'algorithme choisi (HMAC-SHA-256 conseillé)
-        switch (Payzen::getConfigValue('signature_algorithm')) {
-            case 'SHA-1' :
-                $signature = sha1($contenu_signature);
-                break;
-            case 'HMAC-SHA-256' :
-                $signature = base64_encode(hash_hmac('sha256', $contenu_signature, $key, true));
-                break;
-            default :
-                throw new TheliaProcessException("Invalid signature algorithm, please check Payzen module configuration");
-        }
-
-        return $signature;
+        return match (PayzenConfigQuery::read('signature_algorithm')) {
+            'SHA-1' => sha1($contenu_signature),
+            'HMAC-SHA-256' => base64_encode(hash_hmac('sha256', $contenu_signature, $key, true)),
+            default => throw new TheliaProcessException("Invalid signature algorithm, please check Payzen module configuration"),
+        };
     }
 
     // **************************************
