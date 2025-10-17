@@ -155,6 +155,25 @@ class ConfigurationForm extends BaseForm
                 )
             )
             ->add(
+                'signature_algorithm',
+                ChoiceType::class,
+                array(
+                    'constraints' => array(new NotBlank()),
+                    'required' => true,
+                    'choices' => array(
+                        $this->trans('Please select...') => '',
+                        $this->trans('SHA-1 (deprecated)') => 'SHA-1',
+                        $this->trans('HMAC-SHA-256 (recommended)') => 'HMAC-SHA-256',
+                    ),
+                    'label' => $this->trans('Signature algorithm'),
+                    'data' => PayzenConfigQuery::read('signature_algorithm', ''),
+                    'label_attr' => array(
+                        'for' => 'mode',
+                        'help' => $this->trans('The signature algorithm is defined in your Merchant Back Office (Settings menu > Store > Keys tab > Exchange security section).')
+                    )
+                )
+            )
+            ->add(
                 'allowed_ip_list',
                 TextareaType::class,
                 array(

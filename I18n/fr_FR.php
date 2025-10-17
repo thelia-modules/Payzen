@@ -65,6 +65,7 @@ return array(
     'Select nothing to use gateway configuration.' => 'Ne sélectionnez aucun element pour utiliser la configuration par défaut de la plate-forme.',
     'Send a payment confirmation e-mail' => 'Envoyer une confirmation de paiement',
     'Send order confirmation on payment success' => 'Confirmation de commande si le paiement réussit',
+    'Signature algorithm' => 'Algorithme de signature',
     'Site ID' => 'ID du site',
     'Site ID provided by the payment gateway' => 'Identifiant du site, fourni par la plate-forme de paiement',
     'Spanish' => 'Espagnol',
@@ -78,6 +79,7 @@ return array(
     'The interval in days between payments' => 'Nombre de jours entre deux échéances de paiement.',
     'The platform URL is not defined, please check Payzen module configuration.' => 'L\'URL vers la plate-forme Payzen n\'est pas définie. Vérifiez la configuration du module Payzen',
     'The production certificate provided by the payment gateway' => 'Le certificat de production se trouve dans votre outil de gestion de caisse.',
+    'The signature algorithm is defined in your Merchant Back Office (Settings menu > Store > Keys tab > Exchange security section).' => 'L\'algorithme de calcul est défini dans votre Back Office Marchand (menu Paramétrage > Boutique > onglet Clés > rubrique Sécurité des échanges).',
     'The test certificate provided by the payment gateway' => 'Le certificat de test se trouve dans votre outil de gestion de caisse.',
     'The total number of payments' => 'Le nombre total de paiements à effectuer.',
     'Time in seconds before the client is redirected after a failed payment' => 'Délai en secondes avant la redirection vers la boutique lorsque le paiement a échoué',
@@ -86,4 +88,6 @@ return array(
     'Unsupported order currency: \'%code\'' => 'La devise de la commande n\'est pas supportée: \'%code\' ',
     'You canceled the payment' => 'Vous avez annulé le paiement',
     'Your payment has been refused' => 'Votre paiement a été refusé.',
+    'HMAC-SHA-256 (recommended)' => 'HMAC-SHA-256 (conseillé)',
+    'SHA-1 (deprecated)' => 'SHA-1 (déprécié)'
 );
