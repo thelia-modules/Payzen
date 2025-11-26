@@ -167,6 +167,20 @@ class Payzen extends AbstractPaymentModule
             }
         }
 
+        if (0 === version_compare($newVersion, '2.0.9')) {
+            $signAlgo = self::getConfigValue('signature_algorithm');
+
+            if (empty($signAlgo)){
+                $signAlgo =  PayzenConfigQuery::read('signature_algorithm');
+            }
+
+            if (empty($signAlgo)){
+                $signAlgo =  'HMAC-SHA-256';
+            }
+
+            PayzenConfigQuery::set('signature_algorithm', $signAlgo);
+        }
+
         parent::update($currentVersion, $newVersion, $con);
     }
 
