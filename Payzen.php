@@ -38,7 +38,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Response;
 use Thelia\Core\Translation\Translator;
 use Thelia\Exception\TheliaProcessException;
-use Thelia\Install\Database;
+use Thelia\Core\Install\Database;
 use Thelia\Model\Base\CountryQuery;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\Lang;
