@@ -181,6 +181,10 @@ class Payzen extends AbstractPaymentModule
             PayzenConfigQuery::set('signature_algorithm', $signAlgo);
         }
 
+        if (0 === version_compare($newVersion, '2.0.11')) {
+            PayzenConfigQuery::set('send_shop_notification_message_only_if_paid', false);
+        }
+
         parent::update($currentVersion, $newVersion, $con);
     }
 
