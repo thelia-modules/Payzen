@@ -445,6 +445,21 @@ class ConfigurationForm extends BaseForm
                     ]
                 ]
             )
+            ->add(
+                'send_shop_notification_message_only_if_paid',
+                CheckboxType::class,
+                [
+                    'value' => 1,
+                    'required' => false,
+                    'label' => $this->trans('Send shop order notification on payment success'),
+                    'data' => (bool)PayzenConfigQuery::read('send_shop_notification_message_only_if_paid', false),
+                    'label_attr' => [
+                        'help' => $this->trans(
+                            'If checked, the shop order notification message is sent to the shop email only when the payment is successful.'
+                        )
+                    ]
+                ]
+            )
         ;
 
         if ($multiEnabled) {

@@ -89,5 +89,7 @@ return array(
     'You canceled the payment' => 'Vous avez annulé le paiement',
     'Your payment has been refused' => 'Votre paiement a été refusé.',
     'HMAC-SHA-256 (recommended)' => 'HMAC-SHA-256 (conseillé)',
-    'SHA-1 (deprecated)' => 'SHA-1 (déprécié)'
+    'SHA-1 (deprecated)' => 'SHA-1 (déprécié)',
+    'If checked, the shop order notification message is sent to the shop email only when the payment is successful.' => 'Si coché, le message de notification de commande est envoyé à l\'email du magasin uniquement lorsque le paiement est réussi.',
+    'Send shop order notification on payment success' => 'Notification de commade seulement si le paiement réussit',
 );

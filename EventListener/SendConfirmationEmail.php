@@ -67,6 +67,23 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
     }
 
     /**
+     * @param OrderEvent $event
+     *
+     * @throws Exception if the message cannot be loaded.
+     */
+    public function sendShopNotificationEmail(OrderEvent $event): void
+    {
+        if (PayzenConfigQuery::read('send_shop_notification_message_only_if_paid')) {
+            // We send the order confirmation email only if the order is paid
+            $order = $event->getOrder();
+
+            if (! $order->isPaid() && $order->getPaymentModuleId() === (int)Payzen::getModuleId()) {
+                $event->stopPropagation();
+            }
+        }
+    }
+
+    /**
      * Checks if order payment module is PayPal and if order new status is paid, email the customer.
      *
      * @param OrderEvent $event
@@ -94,6 +111,10 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
             if (PayzenConfigQuery::read('send_confirmation_message_only_if_paid')) {
                 $dispatcher->dispatch($event, TheliaEvents::ORDER_SEND_CONFIRMATION_EMAIL);
             }
+
+            if (PayzenConfigQuery::read('send_shop_notification_message_only_if_paid')) {
+                $dispatcher->dispatch($event, TheliaEvents::ORDER_SEND_NOTIFICATION_EMAIL);
+            }
         }
     }
 
@@ -102,7 +123,7 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
         return array(
             TheliaEvents::ORDER_UPDATE_STATUS           => array("updateStatus", 128),
             TheliaEvents::ORDER_SEND_CONFIRMATION_EMAIL => array("sendConfirmationEmail", 129),
-            TheliaEvents::ORDER_SEND_NOTIFICATION_EMAIL => ['sendConfirmationEmail', 129],
+            TheliaEvents::ORDER_SEND_NOTIFICATION_EMAIL => ['sendShopNotificationEmail', 129],
         );
     }
 }
