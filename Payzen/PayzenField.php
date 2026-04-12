@@ -126,7 +126,7 @@ class PayzenField {
      * Return the name (html attribute) of the field.
      * @return string
      */
-    function getName() {
+    function getName(): string {
         return $this->name;
     }
 
