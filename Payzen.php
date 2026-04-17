@@ -86,9 +86,9 @@ class Payzen extends AbstractPaymentModule
         // Once activated, create the module schema in the Thelia database.
         $database = new Database($con);
 
-        try {
-            PayzenConfigQuery::create()->findOne();
-        } catch (Exception) {
+        $wrapped = $con->getWrappedConnection();
+        $stmt = $wrapped->query("SHOW TABLES LIKE 'payzen_config'");
+        if ($stmt->fetchColumn() === false) {
             $database->insertSql(null, array(
                 __DIR__ . DS . 'Config'.DS.'TheliaMain.sql' // The module schema
             ));
