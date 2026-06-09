@@ -1,0 +1,333 @@
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">{{ 'Payzen Configuration'|trans({}, 'payzen') }}</h5>
+    </div>
+    <div class="card-body">
+        {{ form_start(form, {action: path('payzen_configuration_configure'), method: 'POST'}) }}
+
+        {% if form.vars.errors|length > 0 %}
+            <div class="alert alert-danger">
+                {% for error in form.vars.errors %}{{ error.message }}{% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="row">
+            {# --- Column 1: Access to Payzen Platform --- #}
+            <div class="col-md-4">
+                <p class="fw-semibold border-bottom pb-2 mb-3">{{ 'Access to Payzen Platform'|trans({}, 'payzen') }}</p>
+
+                <div class="mb-3">
+                    {{ form_label(form.site_id, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.site_id, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.site_id) }}
+                    {% if form.site_id.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.site_id.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.test_certificate, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.test_certificate, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.test_certificate) }}
+                    {% if form.test_certificate.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.test_certificate.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.production_certificate, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.production_certificate, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.production_certificate) }}
+                    {% if form.production_certificate.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.production_certificate.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.platform_url, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.platform_url, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.platform_url) }}
+                    {% if form.platform_url.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.platform_url.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.mode, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.mode, {attr: {class: 'form-select'}}) }}
+                    {{ form_errors(form.mode) }}
+                    {% if form.mode.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.mode.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.allowed_ip_list, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.allowed_ip_list, {attr: {class: 'form-control', rows: 3}}) }}
+                    {{ form_errors(form.allowed_ip_list) }}
+                    {% if form.allowed_ip_list.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.allowed_ip_list.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ 'Return URL in the back-office'|trans({}, 'payzen') }}</label>
+                    <div class="card bg-light p-2 font-monospace small">{{ callbackUrl }}</div>
+                    <div class="form-text">
+                        {{ "Copy this URL in the 'URL to notify in TEST mode' and 'URL to notify in PRODUCTION mode' (which must not be mistaken with the 'Return URL of the shop') in 'Notification rules' fields in the PayZen back-office"|trans({}, 'payzen') }}
+                    </div>
+                </div>
+            </div>
+
+            {# --- Column 2: Payment configuration --- #}
+            <div class="col-md-4">
+                <p class="fw-semibold border-bottom pb-2 mb-3">{{ 'Payment configuration'|trans({}, 'payzen') }}</p>
+
+                <div class="mb-3">
+                    {{ form_label(form.banking_delay, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.banking_delay, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.banking_delay) }}
+                    {% if form.banking_delay.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.banking_delay.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.validation_mode, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.validation_mode, {attr: {class: 'form-select'}}) }}
+                    {{ form_errors(form.validation_mode) }}
+                    {% if form.validation_mode.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.validation_mode.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.allowed_cards, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.allowed_cards, {attr: {class: 'form-select', size: 7}}) }}
+                    {{ form_errors(form.allowed_cards) }}
+                    {% if form.allowed_cards.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.allowed_cards.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <p class="fw-semibold border-bottom pb-2 mb-3">{{ 'One time payment'|trans({}, 'payzen') }}</p>
+
+                <div class="mb-3">
+                    {{ form_label(form.minimum_amount, null, {label_attr: {class: 'form-label'}}) }}
+                    <div class="input-group">
+                        {{ form_widget(form.minimum_amount, {attr: {class: 'form-control', step: 'any'}}) }}
+                        <span class="input-group-text">{{ currencySymbol }}</span>
+                    </div>
+                    {{ form_errors(form.minimum_amount) }}
+                    {% if form.minimum_amount.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.minimum_amount.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.maximum_amount, null, {label_attr: {class: 'form-label'}}) }}
+                    <div class="input-group">
+                        {{ form_widget(form.maximum_amount, {attr: {class: 'form-control', step: 'any'}}) }}
+                        <span class="input-group-text">{{ currencySymbol }}</span>
+                    </div>
+                    {{ form_errors(form.maximum_amount) }}
+                    {% if form.maximum_amount.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.maximum_amount.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.three_ds_minimum_order_amount, null, {label_attr: {class: 'form-label'}}) }}
+                    <div class="input-group">
+                        {{ form_widget(form.three_ds_minimum_order_amount, {attr: {class: 'form-control', step: 'any'}}) }}
+                        <span class="input-group-text">{{ currencySymbol }}</span>
+                    </div>
+                    {{ form_errors(form.three_ds_minimum_order_amount) }}
+                    {% if form.three_ds_minimum_order_amount.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.three_ds_minimum_order_amount.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <p class="fw-semibold border-bottom pb-2 mb-3">{{ 'Multiple times payment'|trans({}, 'payzen') }}</p>
+
+                {% if multiEnabled %}
+                    <div class="mb-3">
+                        {{ form_label(form.multi_minimum_amount, null, {label_attr: {class: 'form-label'}}) }}
+                        <div class="input-group">
+                            {{ form_widget(form.multi_minimum_amount, {attr: {class: 'form-control', step: 'any'}}) }}
+                            <span class="input-group-text">{{ currencySymbol }}</span>
+                        </div>
+                        {{ form_errors(form.multi_minimum_amount) }}
+                        {% if form.multi_minimum_amount.vars.label_attr.help is defined %}
+                            <div class="form-text">{{ form.multi_minimum_amount.vars.label_attr.help }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.multi_maximum_amount, null, {label_attr: {class: 'form-label'}}) }}
+                        <div class="input-group">
+                            {{ form_widget(form.multi_maximum_amount, {attr: {class: 'form-control', step: 'any'}}) }}
+                            <span class="input-group-text">{{ currencySymbol }}</span>
+                        </div>
+                        {{ form_errors(form.multi_maximum_amount) }}
+                        {% if form.multi_maximum_amount.vars.label_attr.help is defined %}
+                            <div class="form-text">{{ form.multi_maximum_amount.vars.label_attr.help }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.multi_first_payment, null, {label_attr: {class: 'form-label'}}) }}
+                        <div class="input-group">
+                            {{ form_widget(form.multi_first_payment, {attr: {class: 'form-control', step: 'any'}}) }}
+                            <span class="input-group-text">%</span>
+                        </div>
+                        {{ form_errors(form.multi_first_payment) }}
+                        {% if form.multi_first_payment.vars.label_attr.help is defined %}
+                            <div class="form-text">{{ form.multi_first_payment.vars.label_attr.help }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.multi_number_of_payments, null, {label_attr: {class: 'form-label'}}) }}
+                        {{ form_widget(form.multi_number_of_payments, {attr: {class: 'form-control'}}) }}
+                        {{ form_errors(form.multi_number_of_payments) }}
+                        {% if form.multi_number_of_payments.vars.label_attr.help is defined %}
+                            <div class="form-text">{{ form.multi_number_of_payments.vars.label_attr.help }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.multi_payments_interval, null, {label_attr: {class: 'form-label'}}) }}
+                        {{ form_widget(form.multi_payments_interval, {attr: {class: 'form-control'}}) }}
+                        {{ form_errors(form.multi_payments_interval) }}
+                        {% if form.multi_payments_interval.vars.label_attr.help is defined %}
+                            <div class="form-text">{{ form.multi_payments_interval.vars.label_attr.help }}</div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        {{ 'Install and activate Payzen multiple times payment module to get configuration options.'|trans({}, 'payzen') }}
+                    </div>
+                {% endif %}
+
+                <p class="fw-semibold border-bottom pb-2 mb-3">{{ 'One off SEPA payment (SDD)'|trans({}, 'payzen') }}</p>
+
+                {% if sepaEnabled %}
+                    <p>{{ 'No configuration needed'|trans({}, 'payzen') }}.</p>
+                {% else %}
+                    <div class="alert alert-info">
+                        {{ "Install and activate 'Payzen One Off SEPA' module to get configuration options."|trans({}, 'payzen') }}
+                    </div>
+                {% endif %}
+            </div>
+
+            {# --- Column 3: Email & payment page --- #}
+            <div class="col-md-4">
+                <p class="fw-semibold border-bottom pb-2 mb-3">{{ 'Email configuration'|trans({}, 'payzen') }}</p>
+
+                <div class="mb-3 form-check">
+                    {{ form_widget(form.send_confirmation_message_only_if_paid, {attr: {class: 'form-check-input'}}) }}
+                    {{ form_label(form.send_confirmation_message_only_if_paid, null, {label_attr: {class: 'form-check-label'}}) }}
+                    {{ form_errors(form.send_confirmation_message_only_if_paid) }}
+                    {% if form.send_confirmation_message_only_if_paid.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.send_confirmation_message_only_if_paid.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3 form-check">
+                    {{ form_widget(form.send_payment_confirmation_message, {attr: {class: 'form-check-input'}}) }}
+                    {{ form_label(form.send_payment_confirmation_message, null, {label_attr: {class: 'form-check-label'}}) }}
+                    {{ form_errors(form.send_payment_confirmation_message) }}
+                    {% if form.send_payment_confirmation_message.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.send_payment_confirmation_message.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="card bg-light mb-3 p-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    {{ 'You can <a href="%url">edit the payment confirmation email</a> sent to the customer after a successful payment.'|trans({'%url': path('admin.configuration.messages.list')}, 'payzen')|raw }}
+                </div>
+
+                <p class="fw-semibold border-bottom pb-2 mb-3">{{ 'Payment page'|trans({}, 'payzen') }}</p>
+
+                <div class="mb-3">
+                    {{ form_label(form.default_language, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.default_language, {attr: {class: 'form-select'}}) }}
+                    {{ form_errors(form.default_language) }}
+                    {% if form.default_language.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.default_language.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.available_languages, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.available_languages, {attr: {class: 'form-select', size: 10}}) }}
+                    {{ form_errors(form.available_languages) }}
+                    {% if form.available_languages.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.available_languages.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.redirect_enabled, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.redirect_enabled, {attr: {class: 'form-select'}}) }}
+                    {{ form_errors(form.redirect_enabled) }}
+                    {% if form.redirect_enabled.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.redirect_enabled.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.success_timeout, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.success_timeout, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.success_timeout) }}
+                    {% if form.success_timeout.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.success_timeout.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.success_message, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.success_message, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.success_message) }}
+                    {% if form.success_message.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.success_message.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.failure_timeout, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.failure_timeout, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.failure_timeout) }}
+                    {% if form.failure_timeout.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.failure_timeout.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.failure_message, null, {label_attr: {class: 'form-label'}}) }}
+                    {{ form_widget(form.failure_message, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.failure_message) }}
+                    {% if form.failure_message.vars.label_attr.help is defined %}
+                        <div class="form-text">{{ form.failure_message.vars.label_attr.help }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+            <button type="submit" name="save_mode" value="stay" class="btn btn-primary">
+                <i class="bi bi-save me-1"></i>{{ 'Save'|trans({}, 'messages') }}
+            </button>
+            <button type="submit" name="save_mode" value="close" class="btn btn-secondary">
+                <i class="bi bi-save me-1"></i>{{ 'Save & close'|trans({}, 'messages') }}
+            </button>
+            <a href="{{ path('admin.module.list') }}" class="btn btn-outline-secondary">
+                {{ 'Cancel'|trans({}, 'messages') }}
+            </a>
+        </div>
+
+        {{ form_rest(form) }}
+        {{ form_end(form, {render_rest: false}) }}
+    </div>
+</div>

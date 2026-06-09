@@ -72,7 +72,7 @@ class ConfigurationController extends BaseAdminController
             );
 
             // Redirect to the success URL,
-            if ($request->get('save_mode') === 'stay') {
+            if ($request->request->get('save_mode') === 'stay') {
                 // If we have to stay on the same page, redisplay the configuration page/
                 $route = '/admin/module/Payzen';
             } else {

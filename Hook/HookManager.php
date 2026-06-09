@@ -21,33 +21,65 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-/**
- * Created by Franck Allimant, CQFDev <franck@cqfdev.fr>
- * Date: 11/01/2016 11:57
- */
 namespace Payzen\Hook;
 
+use Payzen\Form\ConfigurationForm;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Thelia\Core\Event\Hook\HookRenderEvent;
+use Thelia\Core\Form\TheliaFormFactory;
 use Thelia\Core\Hook\BaseHook;
+use Thelia\Core\Template\Parser\ParserResolver;
+use Thelia\Model\Base\ModuleQuery;
+use Thelia\Model\CurrencyQuery;
+use Thelia\Tools\URL;
 
 class HookManager extends BaseHook
 {
+    public function __construct(
+        private readonly TheliaFormFactory $formFactory,
+        ?EventDispatcherInterface $dispatcher = null,
+        ?ParserResolver $parserResolver = null,
+    ) {
+        parent::__construct($dispatcher, $parserResolver);
+    }
+
     public function onModuleConfigure(HookRenderEvent $event): void
     {
-        $event->add(
-            $this->render('payzen/module-configuration.html')
-        );
+        $multiEnabled = $this->isModuleActive('PayzenMulti');
+        $sepaEnabled = $this->isModuleActive('PayzenOneOffSEPA');
+
+        $form = $this->formFactory->createForm(ConfigurationForm::getName());
+
+        $callbackUrl = URL::getInstance()->absoluteUrl('/payzen/callback');
+
+        $defaultCurrency = CurrencyQuery::create()->findOneByByDefault(true);
+        $currencySymbol = $defaultCurrency ? $defaultCurrency->getSymbol() : '€';
+
+        $event->add($this->render('Payzen/module-configuration.html.twig', [
+            'form' => $form->createView()->getView(),
+            'multiEnabled' => $multiEnabled,
+            'sepaEnabled' => $sepaEnabled,
+            'callbackUrl' => $callbackUrl,
+            'currencySymbol' => $currencySymbol,
+        ]));
     }
 
     public static function getSubscribedHooks(): array
     {
         return [
-            "module.configuration" => [
+            'module.configuration' => [
                 [
-                    "type" => "back",
-                    "method" => "onModuleConfigure"
+                    'type' => 'back',
+                    'method' => 'onModuleConfigure',
                 ],
-            ]
+            ],
         ];
+    }
+
+    private function isModuleActive(string $code): bool
+    {
+        $module = ModuleQuery::create()->findOneByCode($code);
+
+        return $module !== null && $module->getActivate() !== 0;
     }
 }
