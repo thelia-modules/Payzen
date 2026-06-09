@@ -245,7 +245,7 @@
 
                 <div class="card bg-light mb-3 p-2">
                     <i class="bi bi-info-circle me-1"></i>
-                    {{ 'You can <a href="%url">edit the payment confirmation email</a> sent to the customer after a successful payment.'|trans({'%url': path('admin.configuration.messages.list')}, 'payzen')|raw }}
+                    {{ 'You can <a href="%url">edit the payment confirmation email</a> sent to the customer after a successful payment.'|trans({'%url': path('admin.configuration.messages.default')}, 'payzen')|raw }}
                 </div>
 
                 <p class="fw-semibold border-bottom pb-2 mb-3">{{ 'Payment page'|trans({}, 'payzen') }}</p>
@@ -322,7 +322,7 @@
             <button type="submit" name="save_mode" value="close" class="btn btn-secondary">
                 <i class="bi bi-save me-1"></i>{{ 'Save & close'|trans({}, 'messages') }}
             </button>
-            <a href="{{ path('admin.module.list') }}" class="btn btn-outline-secondary">
+            <a href="{{ path('admin.module') }}" class="btn btn-outline-secondary">
                 {{ 'Cancel'|trans({}, 'messages') }}
             </a>
         </div>
