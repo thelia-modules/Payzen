@@ -92,9 +92,7 @@ class ConfigurationController extends BaseAdminController
              $error_msg = $ex->getMessage();
         }
 
-        // At this point, the form has errors, and should be redisplayed. We do not redirect,
-        // just redisplay the same template.
-        // Set up the Form error context to make error information available in the template.
+        // Log the error for debugging purposes.
         $this->setupFormErrorContext(
             Translator::getInstance()->trans("Payzen configuration", [], Payzen::MODULE_DOMAIN),
             $error_msg,
@@ -102,8 +100,11 @@ class ConfigurationController extends BaseAdminController
             $ex
         );
 
-        // Do not redirect at this point, or the error context will be lost.
-        // Just redisplay the current template.
-        return $this->render('module-configure', array('module_code' => 'Payzen'));
+        // Surface the error as a flash message so BO default-twig can display it,
+        // then redirect back to the GET configure page (render('module-configure') resolves
+        // a Smarty-era template that no longer exists in the Twig theme).
+        $this->addFlash('danger', $error_msg);
+
+        return $this->generateRedirectFromRoute('admin.module.configure', [], ['module_code' => 'Payzen']);
     }
 }
