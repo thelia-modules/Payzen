@@ -60,7 +60,7 @@ class PaymentController extends BasePaymentModuleController
             PayzenConfigQuery::read('production_certificate')
         );
 
-        $order_id = (int)$request->get('vads_order_id');
+        $order_id = (int) $request->request->get('vads_order_id');
 
         $this->getLog()->addInfo(Translator::getInstance()->trans("Payzen platform request received for order ID %id.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
