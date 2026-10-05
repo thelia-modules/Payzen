@@ -27,6 +27,7 @@ use Exception;
 use Payzen\Model\PayzenConfigQuery;
 use Payzen\Payzen\PayzenResponse;
 use Payzen\Payzen;
+use Payzen\Service\CancelledOrderPaymentAlert;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,7 +49,7 @@ class PaymentController extends BasePaymentModuleController
      * @throws Exception
      */
     #[Route('/callback', name: 'process', methods: ['POST'])]
-    public function processPayzenRequest(Request $request, EventDispatcherInterface $eventDispatcher): Response
+    public function processPayzenRequest(Request $request, EventDispatcherInterface $eventDispatcher, CancelledOrderPaymentAlert $cancelledOrderPaymentAlert): Response
     {
         // The response code to the server
         $gateway_response_code = 'ko';
@@ -75,6 +76,13 @@ class PaymentController extends BasePaymentModuleController
                         $this->getLog()->addInfo(Translator::getInstance()->trans("Order ID %id is already paid.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
                         $gateway_response_code = 'payment_ok_already_done';
+                    } elseif ($order->isCancelled()) {
+                        // The core lets a cancelled order become paid (a back office may need it), but a cancelled
+                        // order has given back its gift cards and its stock: it is left cancelled, and the
+                        // merchant is told to refund the payment.
+                        $cancelledOrderPaymentAlert->send($order, (string) $payzenResponse->get('trans_id'));
+
+                        $gateway_response_code = 'payment_ok_on_order_cancelled';
                     } else {
                         $this->getLog()->addInfo(Translator::getInstance()->trans("Order ID %id payment was successful.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 

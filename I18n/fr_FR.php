@@ -84,6 +84,8 @@ return array(
     'Time in seconds before the client is redirected after a successful payment' => 'Délai en secondes avant la redirection vers la boutique lorsque le paiement a réussi',
     'URL the client will be redirected to' => 'URL où sera redirigé le client pour procéder au paiement',
     'Unsupported order currency: \'%code\'' => 'La devise de la commande n\'est pas supportée: \'%code\' ',
+    'PayZen accepted a payment for the cancelled order %ref' => 'PayZen a accepté un paiement pour la commande annulée %ref',
+    'PayZen accepted the payment %transaction of the order %ref (ID %id), which had been cancelled. The order was left cancelled: please refund the customer from the PayZen back office.' => 'PayZen a accepté le paiement %transaction de la commande %ref (ID %id), qui avait été annulée. La commande reste annulée : remboursez le client depuis le back-office PayZen.',
     'You canceled the payment' => 'Vous avez annulé le paiement',
     'Your payment has been refused' => 'Votre paiement a été refusé.',
 );

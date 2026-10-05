@@ -406,6 +406,7 @@ class PayzenResponse {
             'payment_ko_already_done' => array(true, 'Paiement invalide traite, deja enregistre'),
             'order_not_found' => array(false, 'Impossible de retrouver la commande'),
             'payment_ko_on_order_ok' => array(false, 'Code paiement invalide recu pour une commande deja validee'),
+            'payment_ok_on_order_cancelled' => array(false, 'Paiement valide recu pour une commande annulee, a rembourser'),
             'auth_fail' => array(false, 'Echec authentification'),
             'ok' => array(true, ''),
             'ko' => array(false, ''));
