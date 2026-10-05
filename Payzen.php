@@ -23,6 +23,8 @@
 
 namespace Payzen;
 
+use Payzen\DependencyInjection\Compiler\RegisterEmailTranslationsPass;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Exception;
 use InvalidArgumentException;
 use Payzen\Model\Map\PayzenConfigTableMap;
@@ -495,10 +497,17 @@ class Payzen extends AbstractPaymentModule
         return $payzenApi->getRequestFields();
     }
 
+    public static function getCompilers(): array
+    {
+        return [
+            [new RegisterEmailTranslationsPass(__DIR__, self::MODULE_DOMAIN), PassConfig::TYPE_BEFORE_OPTIMIZATION],
+        ];
+    }
+
     public static function configureServices(ServicesConfigurator $servicesConfigurator): void
     {
         $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
-            ->exclude([__DIR__.'/I18n/*', __DIR__.'/Config/**/*.php', __DIR__.'/Payzen.php'])
+            ->exclude([__DIR__.'/I18n/*', __DIR__.'/Config/**/*.php', __DIR__.'/Payzen.php', __DIR__.'/DependencyInjection/*'])
             ->autowire()
             ->autoconfigure();
     }

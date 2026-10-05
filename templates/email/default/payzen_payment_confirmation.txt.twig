@@ -1,0 +1,9 @@
+{{ 'Dear customer,'|trans({}, 'payzen.email.default', locale) }}
+
+{{ 'This is a confirmation of the payment of your order %ref via Payzen on our shop.'|trans({'%ref': order_ref}, 'payzen.email.default', locale) }}
+
+{{ 'Your invoice is now available in your customer account at %link'|trans({'%link': config('url_site')}, 'payzen.email.default', locale) }}
+
+{{ 'Thank you again for your purchase.'|trans({}, 'payzen.email.default', locale) }}
+
+{{ 'The %name team'|trans({'%name': config('store_name')}, 'payzen.email.default', locale) }}
