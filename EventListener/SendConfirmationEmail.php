@@ -92,7 +92,8 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
 
             // Send confirmation email if required.
             if (PayzenConfigQuery::read('send_confirmation_message_only_if_paid')) {
-                $dispatcher->dispatch($event, TheliaEvents::ORDER_SEND_CONFIRMATION_EMAIL);
+                // A copy: a listener of the confirmation that stops it must not stop the status change too.
+                $dispatcher->dispatch(clone $event, TheliaEvents::ORDER_SEND_CONFIRMATION_EMAIL);
             }
         }
     }
@@ -100,7 +101,8 @@ class SendConfirmationEmail extends BaseAction implements EventSubscriberInterfa
     public static function getSubscribedEvents(): array
     {
         return array(
-            TheliaEvents::ORDER_UPDATE_STATUS           => array("updateStatus", 128),
+            // After the core (Thelia\Action\Order, 128) has written the new status: isPaid() reads it.
+            TheliaEvents::ORDER_UPDATE_STATUS           => array("updateStatus", 126),
             TheliaEvents::ORDER_SEND_CONFIRMATION_EMAIL => array("sendConfirmationEmail", 129)
         );
     }
