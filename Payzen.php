@@ -423,7 +423,10 @@ class Payzen extends AbstractPaymentModule
             'vads_action_mode'    => 'INTERACTIVE',
             'vads_payment_config' => $this->getPaymentConfigValue($payment_config, $amount, $currency),
             'vads_page_action'    => 'PAYMENT',
-            'vads_return_mode'    => 'POST',
+            // The buyer comes back by a plain link, without the vads_* fields: a cross-site POST arrives without
+            // the session cookie (SameSite=Lax) the confirmation and failure pages need. The payment is validated
+            // by the signed server notification only (PaymentController::processPayzenRequest()).
+            'vads_return_mode'    => 'NONE',
             'vads_shop_name'      => ConfigQuery::read("store_name", ''),
 
             'vads_url_success'    => $this->getPaymentSuccessPageUrl($order->getId()),
@@ -507,7 +510,7 @@ class Payzen extends AbstractPaymentModule
     public static function configureServices(ServicesConfigurator $servicesConfigurator): void
     {
         $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
-            ->exclude([__DIR__.'/I18n/*', __DIR__.'/Config/**/*.php', __DIR__.'/Payzen.php', __DIR__.'/DependencyInjection/*'])
+            ->exclude([__DIR__.'/I18n/*', __DIR__.'/Config/**/*.php', __DIR__.'/Payzen.php', __DIR__.'/DependencyInjection/*', __DIR__.'/Tests/*'])
             ->autowire()
             ->autoconfigure();
     }
