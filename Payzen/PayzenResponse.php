@@ -283,7 +283,7 @@ class PayzenResponse {
             $warrantyMessage = $noCode;
         } else {
             $warrantyMessage = $this->_findInArray($warrantyCode,
-                $this->translations['warranty_results'], $noTrans);
+                $this->translation['warranty_results'], $noTrans);
         }
 
         $this->code = $code;
