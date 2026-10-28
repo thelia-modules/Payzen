@@ -34,14 +34,24 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Thelia\Core\Translation\Translator;
+use Thelia\Domain\Order\Exception\OrderStatusTransitionRefusedException;
+use Thelia\Model\ModuleQuery;
 use Thelia\Module\BasePaymentModuleController;
 
 #[Route('/payzen', name: 'payzen_payment_')]
 class PaymentController extends BasePaymentModuleController
 {
+    /** The module the order was paid with, once the notification found its order: Payzen or PayzenMulti. */
+    private ?string $orderModuleCode = null;
+
+    /**
+     * The code the confirmation of a payment carries as its source. It has to be the module that holds the primary
+     * payment part of the order, which is PayzenMulti for an instalment payment although both come back here: the core
+     * accepts the late confirmation of a payment part it released only from that module.
+     */
     protected function getModuleCode(): string
     {
-        return "Payzen";
+        return $this->orderModuleCode ?? "Payzen";
     }
 
     /**
@@ -66,6 +76,8 @@ class PaymentController extends BasePaymentModuleController
         $this->getLog()->addInfo(Translator::getInstance()->trans("Payzen platform request received for order ID %id.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
         if (null !== $order = $this->getOrder($order_id)) {
+            $this->orderModuleCode = ModuleQuery::create()->findPk($order->getPaymentModuleId())?->getCode();
+
             // Check the authenticity of the request
             if ($payzenResponse->isAuthentified()) {
                 // Check payment status
@@ -86,10 +98,20 @@ class PaymentController extends BasePaymentModuleController
                     } else {
                         $this->getLog()->addInfo(Translator::getInstance()->trans("Order ID %id payment was successful.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
-                        // Payment OK !
-                        $this->confirmPayment($eventDispatcher, $order_id);
+                        try {
+                            // Payment OK !
+                            $this->confirmPayment($eventDispatcher, $order_id);
 
-                        $gateway_response_code = 'payment_ok';
+                            $gateway_response_code = 'payment_ok';
+                        } catch (OrderStatusTransitionRefusedException $exception) {
+                            // The core gave the other payment parts of the order back (a gift card) before PayZen
+                            // confirmed: it settles the PayZen part again, writes in the order history that the payment
+                            // is to be refunded, and leaves the order unpaid. PayZen is told so, instead of an error it
+                            // would send the notification again for.
+                            $this->getLog()->addError($exception->getMessage());
+
+                            $gateway_response_code = 'payment_ok_on_order_cancelled';
+                        }
                     }
                 } else if ($payzenResponse->isCancelledPayment()) {
                     // Payment was canceled.

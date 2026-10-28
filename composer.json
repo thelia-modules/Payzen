@@ -5,6 +5,9 @@
   "require": {
     "thelia/installer": "^1.6"
   },
+  "conflict": {
+    "thelia/core": "<3.3.0"
+  },
   "extra": {
     "installer-name": "Payzen"
   }
