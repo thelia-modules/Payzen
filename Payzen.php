@@ -50,13 +50,14 @@ use Thelia\Model\MessageQuery;
 use Thelia\Model\ModuleImageQuery;
 use Thelia\Model\Order;
 use Thelia\Module\AbstractPaymentModule;
+use Thelia\Module\BalanceChargingPaymentModuleInterface;
 
 /**
  * Payzen payment module
  *
  * @author Franck Allimant <franck@cqfdev.fr>
  */
-class Payzen extends AbstractPaymentModule
+class Payzen extends AbstractPaymentModule implements BalanceChargingPaymentModuleInterface
 {
     /** The module domain for internationalization */
     public const MODULE_DOMAIN = "payzen";
@@ -371,8 +372,9 @@ class Payzen extends AbstractPaymentModule
     {
         $payzenApi = new PayzenMultiApi();
 
-        // Total order amount
-        $amount = $this->getOrderPayTotalAmount($order);
+        // What this module charges: the balance left by the other parts of the order (a gift card, for one),
+        // the order total otherwise. Never Order::getTotalAmount().
+        $amount = (float) $this->getAmountToCharge($order);
 
         /** @var  PayzenCurrency $currency */
 

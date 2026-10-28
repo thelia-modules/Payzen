@@ -34,14 +34,23 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Thelia\Core\Translation\Translator;
+use Thelia\Model\ModuleQuery;
 use Thelia\Module\BasePaymentModuleController;
 
 #[Route('/payzen', name: 'payzen_payment_')]
 class PaymentController extends BasePaymentModuleController
 {
+    /** The module the order was paid with, once the notification found its order: Payzen or PayzenMulti. */
+    private ?string $orderModuleCode = null;
+
+    /**
+     * The code the confirmation of a payment carries as its source. It has to be the module that holds the primary
+     * payment part of the order, which is PayzenMulti for an instalment payment although both come back here: the core
+     * accepts the late confirmation of a payment part it released only from that module.
+     */
     protected function getModuleCode(): string
     {
-        return "Payzen";
+        return $this->orderModuleCode ?? "Payzen";
     }
 
     /**
@@ -66,6 +75,8 @@ class PaymentController extends BasePaymentModuleController
         $this->getLog()->addInfo(Translator::getInstance()->trans("Payzen platform request received for order ID %id.", array('%id' => $order_id), Payzen::MODULE_DOMAIN));
 
         if (null !== $order = $this->getOrder($order_id)) {
+            $this->orderModuleCode = ModuleQuery::create()->findPk($order->getPaymentModuleId())?->getCode();
+
             // Check the authenticity of the request
             if ($payzenResponse->isAuthentified()) {
                 // Check payment status
