@@ -43,12 +43,12 @@ final class BalanceChargingTest extends IntegrationTestCase
         $order = $this->orderOf100WithAPartOf30();
 
         self::assertSame(100.0, (float) $order->getTotalAmount());
-        self::assertSame(7000, $this->parameters($order)['vads_amount']->getValue());
+        self::assertSame('7000', (string) $this->parameters($order)['vads_amount']->getValue());
     }
 
     public function testPayzenIsAskedForTheWholeOrderWhenItHasNoPart(): void
     {
-        self::assertSame(10000, $this->parameters($this->orderOf100())['vads_amount']->getValue());
+        self::assertSame('10000', (string) $this->parameters($this->orderOf100())['vads_amount']->getValue());
     }
 
     /**

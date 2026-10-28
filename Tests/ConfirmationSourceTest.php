@@ -56,8 +56,9 @@ final class ConfirmationSourceTest extends IntegrationTestCase
         $this->part((int) $order->getId(), 'Cheque', '30.000000', false, 0);
         $this->part((int) $order->getId(), 'Payzen', '70.000000', true, 1);
 
-        $this->notify((int) $order->getId());
+        $output = $this->notify((int) $order->getId());
 
+        self::assertStringContainsString('a rembourser', $output, 'PayZen is told the payment is to be refunded, not sent an error');
         $primary = OrderPaymentPartQuery::create()->filterByOrderId($order->getId())->filterByIsPrimary(true)->findOne();
         self::assertSame(OrderPaymentPartState::SETTLED->value, $primary?->getState(), 'the provider charged the buyer: its released part is settled again');
     }
